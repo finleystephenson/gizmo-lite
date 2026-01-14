@@ -10,6 +10,8 @@ import random
 from anthropic import Anthropic, APIError, RateLimitError, InternalServerError
 from src.config import Config
 from src.models.schemas import FlashcardSet
+from src.models.deck import Deck
+from src.models.flashcard import Flashcard
 
 
 class FlashcardGenerator:
@@ -128,3 +130,50 @@ Each flashcard should help the student recall and understand the material."""
 
         # Use retry wrapper for resilience
         return self._retry_with_backoff(api_call)
+
+    def save_to_database(self, flashcard_set: FlashcardSet) -> int:
+        """
+        Save generated flashcards to database.
+
+        Args:
+            flashcard_set: FlashcardSet object from generate_flashcards()
+
+        Returns:
+            deck_id: ID of created deck
+        """
+        # Create deck with topic name
+        deck = Deck.create(name=flashcard_set.topic)
+        deck_id = deck['id']
+
+        # Create flashcards linked to deck via foreign key
+        for pair in flashcard_set.flashcards:
+            Flashcard.create(
+                deck_id=deck_id,
+                question=pair.question,
+                answer=pair.answer
+            )
+
+        return deck_id
+
+    def generate_and_save(self, notes: str, topic: str) -> dict:
+        """
+        Generate flashcards and save to database in one call.
+
+        Args:
+            notes: Study notes to generate flashcards from
+            topic: Topic name for the flashcard deck
+
+        Returns:
+            dict with deck_id, topic, and flashcard_count
+        """
+        # Generate flashcards using AI
+        flashcard_set = self.generate_flashcards(notes, topic)
+
+        # Save to database
+        deck_id = self.save_to_database(flashcard_set)
+
+        return {
+            'deck_id': deck_id,
+            'topic': flashcard_set.topic,
+            'flashcard_count': len(flashcard_set.flashcards)
+        }
