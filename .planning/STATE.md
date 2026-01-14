@@ -6,17 +6,17 @@
 
 ## Current Status
 
-**Phase:** 1 of 7 (Foundation & Database Setup)
-**Plan:** 3 of 3 in current phase
-**Status:** Complete
-**Last activity:** 2026-01-14 - Completed 01-03-PLAN.md (Phase 1 complete)
+**Phase:** 2 of 7 (AI Integration)
+**Plan:** 0 of 2 in current phase
+**Status:** Plans ready for execution
+**Last activity:** 2026-01-14 - Created 2 plans for Phase 2 (02-01, 02-02)
 
 Progress: ██████░░░░ 14% (1/7 phases)
 
 ## Roadmap Progress
 
 - [x] **Phase 1:** Foundation & Database Setup (3/3 plans complete)
-- [ ] **Phase 2:** AI Integration (Research needed)
+- [ ] **Phase 2:** AI Integration (2/2 plans ready, 0/2 executed)
 - [ ] **Phase 3:** Card Generation Interface
 - [ ] **Phase 4:** Study Mode Interface
 - [ ] **Phase 5:** Spaced Repetition Logic
@@ -52,6 +52,15 @@ Progress: ██████░░░░ 14% (1/7 phases)
   - Created .env.example with API key instructions
   - Created comprehensive README with setup guide for students
   - **Phase 1 complete:** Foundation ready for Phase 2 (AI Integration)
+- Researched Phase 2 with /gsd:research-phase 2:
+  - Comprehensive RESEARCH.md created (509 lines)
+  - Standard stack: anthropic>=0.18.0, pydantic>=2.0.0
+  - Architecture: structured outputs with client.beta.messages.parse()
+  - Don't hand-roll: JSON parsing, retry logic, auth headers
+- User configured Anthropic API key in .env file
+- Created Phase 2 plans with /gsd:plan-phase 2:
+  - Plan 02-01: Core AI Service (Pydantic schemas + FlashcardGenerator)
+  - Plan 02-02: Error Handling & Database Integration (retry logic + persistence)
 
 ## Key Decisions
 
@@ -74,6 +83,10 @@ Progress: ██████░░░░ 14% (1/7 phases)
 | python-dotenv for config | Industry standard, simple for students to understand | 2026-01-14 |
 | Auto-initialize database on app startup | Zero-config experience, tables created automatically | 2026-01-14 |
 | Run Flask from project root with src/ imports | Proper Python package structure | 2026-01-14 |
+| Anthropic structured outputs | 100% schema compliance, no hand-rolled JSON parsing | 2026-01-14 |
+| Claude Sonnet 4.5 model | Balance of quality and cost for flashcard generation | 2026-01-14 |
+| Exponential backoff with jitter | Resilient retry logic for 429/529 API errors | 2026-01-14 |
+| Pydantic for schema definition | Type-safe API responses, automatic validation | 2026-01-14 |
 
 ## Active Context
 
@@ -89,7 +102,7 @@ Progress: ██████░░░░ 14% (1/7 phases)
 
 **Codebase State:**
 - Flask project structure with src/ directory layout
-- Core dependencies installed in .venv (Flask, python-dotenv, anthropic)
+- Core dependencies installed in .venv (Flask, python-dotenv, anthropic, pydantic)
 - .gitignore configured for Python/Flask
 - SQLite database with decks and flashcards tables
 - Database models with CRUD operations (Deck, Flashcard)
@@ -98,13 +111,21 @@ Progress: ██████░░░░ 14% (1/7 phases)
 - Flask app initializes database automatically on startup
 - Environment template (.env.example) with API key instructions
 - Comprehensive setup documentation (README.md)
-- Git repo with 10 commits (3 foundation + 3 database + 4 configuration)
+- Anthropic API key configured in .env file
+- Phase 2 research complete (02-RESEARCH.md with structured outputs architecture)
+- Phase 2 plans ready: 02-01-PLAN.md (core AI), 02-02-PLAN.md (retry + DB)
+- Git repo with 11 commits (3 foundation + 3 database + 4 configuration + 1 planning)
 
 ## Next Steps
 
-1. **Phase 1 Complete!** Foundation & Database Setup finished
-2. **Next:** Run `/gsd:research-phase 2` to investigate Anthropic API integration before planning Phase 2
-3. **User action required:** Obtain Anthropic API key from console.anthropic.com/settings/keys before Phase 2
+1. **Phase 2 Plans Ready!** Two plans created for AI Integration
+2. **Next:** Run `/gsd:execute-plan 02-01` to implement Core AI Service
+   - Creates Pydantic schemas (FlashcardPair, FlashcardSet)
+   - Creates FlashcardGenerator service with structured outputs
+   - Educational prompt engineering for active recall
+3. **Then:** Run `/gsd:execute-plan 02-02` to add error handling and database integration
+   - Exponential backoff retry logic
+   - Database persistence (save to Deck + Flashcard tables)
 
 ---
 
