@@ -5,7 +5,9 @@ This service uses Claude's structured outputs feature to reliably generate
 10 Q&A flashcard pairs from study notes with guaranteed schema compliance.
 """
 
-from anthropic import Anthropic
+import time
+import random
+from anthropic import Anthropic, APIError, RateLimitError, InternalServerError
 from src.config import Config
 from src.models.schemas import FlashcardSet
 
@@ -22,9 +24,69 @@ class FlashcardGenerator:
         """Initialize Anthropic client with API key from config."""
         self.client = Anthropic(api_key=Config.ANTHROPIC_API_KEY)
 
+    def _retry_with_backoff(self, func, max_retries=3):
+        """
+        Retry API calls with exponential backoff and jitter.
+
+        Args:
+            func: Callable that performs the API call
+            max_retries: Maximum number of retry attempts (default: 3)
+
+        Returns:
+            Result from func() if successful
+
+        Raises:
+            ValueError: User-friendly error message for different failure types
+        """
+        for attempt in range(max_retries + 1):
+            try:
+                return func()
+            except RateLimitError as e:
+                if attempt == max_retries:
+                    raise ValueError(
+                        "Rate limit exceeded. Please try again in a few minutes."
+                    ) from e
+
+                # Honor retry-after header if present
+                retry_after = getattr(e, 'retry_after', None)
+                if retry_after:
+                    delay = float(retry_after)
+                else:
+                    # Exponential backoff: 1s, 2s, 4s, 8s with jitter
+                    delay = (2 ** attempt) + random.uniform(0, 1)
+
+                print(f"Rate limited. Retrying in {delay:.1f}s... (attempt {attempt + 1}/{max_retries})")
+                time.sleep(delay)
+
+            except InternalServerError as e:
+                # 529 overloaded - retry with backoff
+                if attempt == max_retries:
+                    raise ValueError(
+                        "API temporarily unavailable. Please try again later."
+                    ) from e
+
+                delay = (2 ** attempt) + random.uniform(0, 1)
+                print(f"API overloaded. Retrying in {delay:.1f}s... (attempt {attempt + 1}/{max_retries})")
+                time.sleep(delay)
+
+            except APIError as e:
+                # 400/401 and other errors - don't retry
+                if e.status_code == 401:
+                    raise ValueError(
+                        "Invalid API key. Check your ANTHROPIC_API_KEY in .env file."
+                    ) from e
+                elif e.status_code == 400:
+                    raise ValueError(
+                        f"Invalid request: {e.message}"
+                    ) from e
+                else:
+                    raise ValueError(
+                        f"API error: {e.message}"
+                    ) from e
+
     def generate_flashcards(self, notes: str, topic: str) -> FlashcardSet:
         """
-        Generate 10 flashcards from study notes using Claude.
+        Generate 10 flashcards from study notes using Claude with retry logic.
 
         Args:
             notes: Study notes to generate flashcards from
@@ -55,11 +117,14 @@ Generate exactly 10 flashcards that:
 
 Each flashcard should help the student recall and understand the material."""
 
-        response = self.client.beta.messages.parse(
-            model="claude-sonnet-4-5-20250929",
-            max_tokens=2048,
-            messages=[{"role": "user", "content": prompt}],
-            output_format=FlashcardSet,
-        )
+        def api_call():
+            response = self.client.beta.messages.parse(
+                model="claude-sonnet-4-5-20250929",
+                max_tokens=2048,
+                messages=[{"role": "user", "content": prompt}],
+                output_format=FlashcardSet,
+            )
+            return response
 
-        return response
+        # Use retry wrapper for resilience
+        return self._retry_with_backoff(api_call)
