@@ -7,15 +7,15 @@
 ## Current Status
 
 **Phase:** 1 of 7 (Foundation & Database Setup)
-**Plan:** 1 of 3 in current phase
+**Plan:** 2 of 3 in current phase
 **Status:** In progress
-**Last activity:** 2026-01-14 - Completed 01-01-PLAN.md
+**Last activity:** 2026-01-14 - Completed 01-02-PLAN.md
 
-Progress: ████░░░░░░ 14%
+Progress: ████░░░░░░ 28%
 
 ## Roadmap Progress
 
-- [ ] **Phase 1:** Foundation & Database Setup (1/3 plans complete)
+- [ ] **Phase 1:** Foundation & Database Setup (2/3 plans complete)
 - [ ] **Phase 2:** AI Integration (Research needed)
 - [ ] **Phase 3:** Card Generation Interface
 - [ ] **Phase 4:** Study Mode Interface
@@ -41,6 +41,11 @@ Progress: ████░░░░░░ 14%
   - Created src/ directory structure with Flask layout
   - Created .gitignore with Python standard exclusions
   - Created requirements.txt with Flask, python-dotenv, anthropic
+- Completed 01-02-PLAN.md (Database Schema & Models):
+  - Created SQLite database initialization module
+  - Implemented Deck model with CRUD operations
+  - Implemented Flashcard model with statistics tracking
+  - Verified foreign key CASCADE behavior
 
 ## Key Decisions
 
@@ -56,6 +61,10 @@ Progress: ████░░░░░░ 14%
 | Full statistics tracking | Cards studied, success rate, last studied, study streak | 2026-01-14 |
 | src/ directory structure | Better code organization following Flask conventions | 2026-01-14 |
 | Minimum version specs | Ensure compatibility (Flask>=3.0.0, python-dotenv>=1.0.0, anthropic>=0.18.0) | 2026-01-14 |
+| Raw SQL with sqlite3 (no ORM) | Simplicity and educational value for student learning | 2026-01-14 |
+| Dict-based model returns | Easy JSON serialization without additional mapping layers | 2026-01-14 |
+| Unix timestamps (REAL) | Cross-platform compatibility for temporal fields | 2026-01-14 |
+| Foreign key CASCADE delete | Ensure data integrity when decks are removed | 2026-01-14 |
 
 ## Active Context
 
@@ -73,11 +82,14 @@ Progress: ████░░░░░░ 14%
 - Flask project structure with src/ directory layout
 - Core dependencies defined in requirements.txt (Flask, python-dotenv, anthropic)
 - .gitignore configured for Python/Flask
-- Git repo with 3 commits for foundation setup
+- SQLite database with decks and flashcards tables
+- Database models with CRUD operations (Deck, Flashcard)
+- Statistics tracking ready (studied_count, success_count, last_studied, streak)
+- Git repo with 6 commits (3 foundation + 3 database)
 
 ## Next Steps
 
-1. **Next plan:** Execute 01-02-PLAN.md to continue Phase 1 - Foundation & Database Setup
+1. **Next plan:** Execute 01-03-PLAN.md to complete Phase 1 - Foundation & Database Setup
 2. **After Phase 1 complete:** Run `/gsd:research-phase 2` to investigate Anthropic API integration before planning Phase 2
 
 ---
