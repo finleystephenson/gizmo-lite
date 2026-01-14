@@ -39,6 +39,8 @@ This roadmap breaks down the AI Flashcard Generator into 7 sequential phases, bu
 
 ## Phase 2: AI Integration
 
+**Status:** In Progress (1/2 plans complete)
+
 **Goal:** Integrate Anthropic Claude API to generate flashcards from notes.
 
 **Delivers:**
@@ -48,15 +50,18 @@ This roadmap breaks down the AI Flashcard Generator into 7 sequential phases, bu
 - Sample output validation
 
 **Success Criteria:**
-- [ ] Can send notes to Claude API
-- [ ] Receives 10 structured question-answer pairs
+- [x] Can send notes to Claude API
+- [x] Receives 10 structured question-answer pairs
 - [ ] Handles API errors gracefully
-- [ ] Generated cards focus on active recall
+- [x] Generated cards focus on active recall
 
-**Research Needed:** Yes (Likely)
-- Anthropic API documentation and best practices
-- Prompt engineering for flashcard generation
-- Structured output format (JSON schema)
+**Research Completed:** 2026-01-14
+- Anthropic structured outputs with client.beta.messages.parse()
+- Pydantic models for type-safe responses
+- Educational prompt engineering patterns
+
+**Completed Plans:**
+- 02-01: Core AI Service with Structured Outputs (2 tasks, 2 min)
 
 ---
 

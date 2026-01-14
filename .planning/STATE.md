@@ -7,16 +7,16 @@
 ## Current Status
 
 **Phase:** 2 of 7 (AI Integration)
-**Plan:** 0 of 2 in current phase
-**Status:** Plans ready for execution
-**Last activity:** 2026-01-14 - Created 2 plans for Phase 2 (02-01, 02-02)
+**Plan:** 1 of 2 in current phase
+**Status:** In progress
+**Last activity:** 2026-01-14 - Completed 02-01-PLAN.md (Core AI Service)
 
-Progress: ██████░░░░ 14% (1/7 phases)
+Progress: ██████░░░░ 17% (1.5/7 phases)
 
 ## Roadmap Progress
 
 - [x] **Phase 1:** Foundation & Database Setup (3/3 plans complete)
-- [ ] **Phase 2:** AI Integration (2/2 plans ready, 0/2 executed)
+- [ ] **Phase 2:** AI Integration (1/2 plans complete)
 - [ ] **Phase 3:** Card Generation Interface
 - [ ] **Phase 4:** Study Mode Interface
 - [ ] **Phase 5:** Spaced Repetition Logic
@@ -61,6 +61,12 @@ Progress: ██████░░░░ 14% (1/7 phases)
 - Created Phase 2 plans with /gsd:plan-phase 2:
   - Plan 02-01: Core AI Service (Pydantic schemas + FlashcardGenerator)
   - Plan 02-02: Error Handling & Database Integration (retry logic + persistence)
+- Completed 02-01-PLAN.md (Core AI Service):
+  - Created Pydantic schema models (FlashcardPair, FlashcardSet)
+  - Implemented FlashcardGenerator service with Claude Sonnet 4.5
+  - Used structured outputs with output_format parameter
+  - Educational prompt engineering for active recall questions
+  - Test script demonstrates service functionality
 
 ## Key Decisions
 
@@ -87,6 +93,9 @@ Progress: ██████░░░░ 14% (1/7 phases)
 | Claude Sonnet 4.5 model | Balance of quality and cost for flashcard generation | 2026-01-14 |
 | Exponential backoff with jitter | Resilient retry logic for 429/529 API errors | 2026-01-14 |
 | Pydantic for schema definition | Type-safe API responses, automatic validation | 2026-01-14 |
+| output_format parameter for structured outputs | SDK 0.76.0 uses output_format instead of response_model | 2026-01-14 |
+| Max tokens 2048 for flashcard generation | Sufficient for 10 detailed Q&A pairs with explanations | 2026-01-14 |
+| Educational prompt pattern | Emphasize understanding, avoid yes/no, require explanation | 2026-01-14 |
 
 ## Active Context
 
@@ -102,7 +111,7 @@ Progress: ██████░░░░ 14% (1/7 phases)
 
 **Codebase State:**
 - Flask project structure with src/ directory layout
-- Core dependencies installed in .venv (Flask, python-dotenv, anthropic, pydantic)
+- Core dependencies installed: Flask, python-dotenv, anthropic, pydantic
 - .gitignore configured for Python/Flask
 - SQLite database with decks and flashcards tables
 - Database models with CRUD operations (Deck, Flashcard)
@@ -113,19 +122,18 @@ Progress: ██████░░░░ 14% (1/7 phases)
 - Comprehensive setup documentation (README.md)
 - Anthropic API key configured in .env file
 - Phase 2 research complete (02-RESEARCH.md with structured outputs architecture)
-- Phase 2 plans ready: 02-01-PLAN.md (core AI), 02-02-PLAN.md (retry + DB)
-- Git repo with 11 commits (3 foundation + 3 database + 4 configuration + 1 planning)
+- Pydantic schemas for AI responses (FlashcardPair, FlashcardSet)
+- FlashcardGenerator service with Claude Sonnet 4.5 integration
+- Structured outputs guarantee schema compliance
+- Git repo with 13 commits (3 foundation + 3 database + 4 configuration + 1 planning + 2 AI service)
 
 ## Next Steps
 
-1. **Phase 2 Plans Ready!** Two plans created for AI Integration
-2. **Next:** Run `/gsd:execute-plan 02-01` to implement Core AI Service
-   - Creates Pydantic schemas (FlashcardPair, FlashcardSet)
-   - Creates FlashcardGenerator service with structured outputs
-   - Educational prompt engineering for active recall
-3. **Then:** Run `/gsd:execute-plan 02-02` to add error handling and database integration
+1. **Plan 02-01 Complete!** Core AI Service implemented
+2. **Next:** Run `/gsd:execute-plan 02-02` to add error handling and database integration
    - Exponential backoff retry logic
    - Database persistence (save to Deck + Flashcard tables)
+   - Integration with existing Deck and Flashcard models
 
 ---
 
