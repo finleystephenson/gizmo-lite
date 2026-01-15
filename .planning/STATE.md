@@ -7,34 +7,45 @@
 ## Current Status
 
 **Phase:** 4 of 7 (Study Mode Interface)
-**Plan:** 1 of 3 in current phase
+**Plan:** 2 of 3 in current phase
 **Status:** In progress
-**Last activity:** 2026-01-15 - Completed 04-01-PLAN.md (Deck Selection Page)
+**Last activity:** 2026-01-15 - Completed 04-02-PLAN.md (Study Mode Interface)
 
-Progress: █████████████░ 50% (3/7 phases, 9/13 plans)
+Progress: ██████████████░ 54% (3/7 phases, 10/13 plans)
 
 ## Roadmap Progress
 
 - [x] **Phase 1:** Foundation & Database Setup (3/3 plans complete)
 - [x] **Phase 2:** AI Integration (2/2 plans complete)
 - [x] **Phase 3:** Card Generation Interface (3/3 plans complete) ✅
-- [ ] **Phase 4:** Study Mode Interface (1/3 plans complete)
+- [ ] **Phase 4:** Study Mode Interface (2/3 plans complete)
 - [ ] **Phase 5:** Spaced Repetition Logic
 - [ ] **Phase 6:** Deck Management & Statistics
 - [ ] **Phase 7:** Export/Import & Polish
 
-**Total:** 3/7 phases complete, 9/13 plans complete
+**Total:** 3/7 phases complete, 10/13 plans complete
 
 ## Recent Activity
 
 **2026-01-15:**
-- **Phase 4 Started:** Study Mode Interface (1/3 plans)
+- **Phase 4 In Progress:** Study Mode Interface (2/3 plans)
+  - Completed 04-02: Study Mode Interface
+    - Created study.html with interactive flashcard reveal/grade UI
+    - Implemented /study/{deck_id} route loading flashcards into session
+    - Implemented /study/{deck_id}/grade endpoint updating statistics
+    - Client-side JavaScript manages card progression without page reloads
+    - Flask session tracks study state (studying_deck_id, cards_studied)
+    - Question/answer reveal pattern for active recall learning
+    - Two-button grading: "Got it!" / "Needs Practice"
+    - Progress indicator shows Card X of Y
+    - Human verification checkpoint APPROVED
+    - All functionality verified: reveal works, grading works, progress updates, statistics update in database
   - Completed 04-01: Deck Selection Page
     - Created decks.html showing all saved decks with card counts
     - Implemented /decks route with data enrichment (card counts, formatted dates)
     - Added My Decks navigation link in header visible on all pages
     - Empty state UI for when no decks exist
-    - Study Now buttons link to /study/{deck_id} (next plan)
+    - Study Now buttons link to /study/{deck_id}
 - **Phase 3 Complete:** Card Generation Interface (3/3 plans)
   - Completed 03-01: Base Templates & Homepage
     - Created base.html with Tailwind CSS CDN
@@ -143,6 +154,10 @@ Progress: █████████████░ 50% (3/7 phases, 9/13 plans
 | Sequential wave execution | Plan 03-01 → 03-02 → 03-03 (UI builds on previous) | 2026-01-14 |
 | Format timestamps in Python route | Simpler than custom Jinja2 filters for students | 2026-01-15 |
 | Navigation link in header | Global access to decks from any page, modern UX pattern | 2026-01-15 |
+| Client-side card navigation | Smooth UX without page reloads during study session | 2026-01-15 |
+| Flask session for study state | Validates grade endpoint matches active session for security | 2026-01-15 |
+| Two-button grading system | Simple "Got it!" / "Needs Practice" for self-assessment | 2026-01-15 |
+| Question/answer reveal pattern | Active recall learning - think before revealing answer | 2026-01-15 |
 
 ## Active Context
 
@@ -178,21 +193,22 @@ Progress: █████████████░ 50% (3/7 phases, 9/13 plans
 - Homepage template with flashcard generation form (src/templates/index.html)
 - Blueprint pattern for routes (src/routes/main.py registered in app.py)
 - Form configured to POST to /generate endpoint (will be created in 03-02)
-- Git repo with 28+ commits (foundation + database + config + planning + AI service + templates + routes + generation + preview + editor + deck selection)
-- Full UI stack working: homepage form → AI generation → card preview → modal editor
+- Git repo with 31+ commits (foundation + database + config + planning + AI service + templates + routes + generation + preview + editor + deck selection + study mode)
+- Full UI stack working: homepage form → AI generation → card preview → modal editor → deck selection → study mode
 - Deck selection page showing all decks with card counts
 - My Decks navigation link in header visible on all pages
-- Preview page with "Start Studying" button linking to study mode
+- Interactive study mode with reveal/grade flow and statistics tracking
+- Flask session management for study state validation
 
 ## Next Steps
 
-1. **Plan 04-01 Complete ✅** - Deck Selection Page functional
-2. **Next Plan:** 04-02 - Study Mode Interface
-   - Interactive study session with one card at a time
-   - Show question → user thinks → reveal answer → self-grade
-   - Track statistics (studied_count, success_count, last_studied, streak)
-   - Session end summary with performance stats
-3. **Recommended command:** `/gsd:execute-plan .planning/phases/04-study-mode-ui/04-02-PLAN.md` to implement study mode
+1. **Plan 04-02 Complete ✅** - Study Mode Interface functional
+2. **Next Plan:** 04-03 - Study Session Summary
+   - Session end summary page showing performance statistics
+   - Display cards studied, success rate, time spent
+   - Return to Decks button for navigation
+   - Celebrate success with encouraging messages
+3. **Recommended command:** `/gsd:execute-plan .planning/phases/04-study-mode-ui/04-03-PLAN.md` to implement summary page
 
 ---
 
