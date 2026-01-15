@@ -15,15 +15,15 @@
     <!-- The "Edit" button will open a modal in Plan 03-03 -->
     <div class="grid gap-4 mb-8">
         {% for card in flashcards %}
-        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+        <div data-card-id="{{ card.id }}" class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
                     <!-- Question (bold) -->
-                    <div class="font-bold text-lg mb-2">{{ loop.index }}. {{ card.question }}</div>
+                    <div class="question-text font-bold text-lg mb-2">{{ loop.index }}. {{ card.question }}</div>
                     <!-- Answer (gray text) -->
-                    <div class="text-gray-700">{{ card.answer }}</div>
+                    <div class="answer-text text-gray-700">{{ card.answer }}</div>
                 </div>
-                <!-- Edit button (will be implemented in Plan 03-03) -->
+                <!-- Edit button -->
                 <button onclick="editCard({{ card.id }})"
                         class="ml-4 text-blue-600 hover:text-blue-800 font-semibold">
                     Edit
@@ -49,12 +49,108 @@
     </div>
 </div>
 
-<!-- JavaScript for edit functionality (will be implemented in Plan 03-03) -->
+<!-- Modal for editing flashcards -->
+<div id="editModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-2xl font-bold">Edit Flashcard</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+        </div>
+
+        <form id="editForm" onsubmit="saveCard(event)">
+            <input type="hidden" id="cardId" name="card_id">
+
+            <div class="mb-4">
+                <label for="question" class="block text-gray-700 font-bold mb-2">Question</label>
+                <textarea id="question" name="question" rows="3" required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="answer" class="block text-gray-700 font-bold mb-2">Answer</label>
+                <textarea id="answer" name="answer" rows="5" required
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="submit"
+                        class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-bold">
+                    Save Changes
+                </button>
+                <button type="button" onclick="closeModal()"
+                        class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors font-bold">
+                    Cancel
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+// Store current flashcards data for JavaScript access
+const flashcardsData = {
+    {% for card in flashcards %}
+    {{ card.id }}: {
+        question: {{ card.question|tojson }},
+        answer: {{ card.answer|tojson }}
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+};
+
 function editCard(cardId) {
-    // For students: This function will open a modal to edit the card
-    // Implementation coming in Plan 03-03
-    alert('Edit functionality coming in next plan!');
+    // Load card data into modal form
+    const card = flashcardsData[cardId];
+    document.getElementById('cardId').value = cardId;
+    document.getElementById('question').value = card.question;
+    document.getElementById('answer').value = card.answer;
+
+    // Show modal
+    document.getElementById('editModal').classList.remove('hidden');
 }
+
+function closeModal() {
+    document.getElementById('editModal').classList.add('hidden');
+}
+
+async function saveCard(event) {
+    event.preventDefault();
+
+    const cardId = document.getElementById('cardId').value;
+    const question = document.getElementById('question').value;
+    const answer = document.getElementById('answer').value;
+
+    try {
+        // Send update to server
+        const response = await fetch(`/card/${cardId}/edit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question, answer })
+        });
+
+        if (response.ok) {
+            // Update flashcardsData cache
+            flashcardsData[cardId].question = question;
+            flashcardsData[cardId].answer = answer;
+
+            // Update card display in preview list
+            const cardDiv = document.querySelector(`[data-card-id="${cardId}"]`);
+            cardDiv.querySelector('.question-text').textContent = question;
+            cardDiv.querySelector('.answer-text').textContent = answer;
+
+            closeModal();
+        } else {
+            alert('Failed to save changes. Please try again.');
+        }
+    } catch (error) {
+        alert('Error saving changes: ' + error.message);
+    }
+}
+
+// Close modal when clicking outside
+document.getElementById('editModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
 </script>
 {% endblock %}
