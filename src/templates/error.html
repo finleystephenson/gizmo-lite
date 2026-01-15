@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Error - AI Flashcard Generator{% endblock %}
+
+{% block content %}
+<!-- Error page displayed when flashcard generation fails -->
+<!-- For students: This template is rendered when API errors occur -->
+<div class="max-w-2xl mx-auto mt-12">
+    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg shadow-md">
+        <div class="flex items-center mb-4">
+            <svg class="w-8 h-8 text-red-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <h2 class="text-2xl font-bold text-red-800">Error Generating Flashcards</h2>
+        </div>
+
+        <p class="text-red-700 mb-6">
+            {{ error }}
+        </p>
+
+        <a href="/"
+           class="inline-block bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700 transition-colors font-semibold">
+            ← Back to Homepage
+        </a>
+    </div>
+</div>
+{% endblock %}

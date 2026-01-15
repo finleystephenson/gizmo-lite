@@ -7,7 +7,8 @@ For students: Routes are URL endpoints that your Flask app responds to.
 Each route function (called a "view") handles a specific URL pattern.
 """
 
-from flask import Blueprint, render_template, request
+from flask import Blueprint, render_template, request, redirect, url_for
+from src.services.flashcard_generator import FlashcardGenerator
 
 # Create a Blueprint named 'main'
 # Blueprints organize related routes into modules
@@ -26,3 +27,40 @@ def index():
     # render_template looks for index.html in src/templates/
     # It processes Jinja2 template syntax and returns HTML
     return render_template('index.html')
+
+
+@main.route('/generate', methods=['POST'])
+def generate():
+    """
+    Generate flashcards from study notes using AI.
+
+    For students: The methods=['POST'] parameter means this function
+    only handles POST requests (form submissions).
+    The form data is accessed via request.form dictionary.
+    """
+    # Get form data from the homepage form
+    # request.form.get() safely retrieves form field values
+    notes = request.form.get('notes')
+    topic = request.form.get('topic')
+
+    # Validate inputs - ensure both fields were filled in
+    if not notes or not topic:
+        return "Missing notes or topic", 400
+
+    try:
+        # Generate and save flashcards using the AI service
+        # For students: This is the FlashcardGenerator from Phase 2
+        # It handles API calls, retries, and database saving automatically
+        generator = FlashcardGenerator()
+        result = generator.generate_and_save(notes, topic)
+
+        # Redirect to preview page with the new deck_id
+        # For students: url_for() generates the URL for a named route
+        # This creates /preview/<deck_id> URL dynamically
+        return redirect(url_for('main.preview', deck_id=result['deck_id']))
+
+    except ValueError as e:
+        # API errors return ValueError with user-friendly messages
+        # For students: The FlashcardGenerator wraps API errors in ValueError
+        # with helpful messages like "Rate limit exceeded" or "Invalid API key"
+        return render_template('error.html', error=str(e)), 500
