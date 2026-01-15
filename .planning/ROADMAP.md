@@ -68,6 +68,8 @@ This roadmap breaks down the AI Flashcard Generator into 7 sequential phases, bu
 
 ## Phase 3: Card Generation Interface
 
+**Status:** In Progress (1/3 plans complete)
+
 **Goal:** Build web interface for pasting notes and generating flashcards.
 
 **Delivers:**
@@ -78,13 +80,16 @@ This roadmap breaks down the AI Flashcard Generator into 7 sequential phases, bu
 - Card preview list with modal edit functionality
 
 **Success Criteria:**
-- [ ] Can paste notes and enter topic name
+- [x] Can paste notes and enter topic name
 - [ ] Generates 10 cards via Claude API
 - [ ] Displays cards in preview list
 - [ ] Can open modal popup to edit individual cards
 - [ ] Can save edited deck to database
 
 **Research Needed:** No
+
+**Completed Plans:**
+- 03-01: Base Templates & Homepage (2 tasks, 7 min)
 
 ---
 

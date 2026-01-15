@@ -2,22 +2,22 @@
 
 **Project:** AI Flashcard Generator
 **Mode:** Interactive (standard depth)
-**Last Updated:** 2026-01-14
+**Last Updated:** 2026-01-15
 
 ## Current Status
 
 **Phase:** 3 of 7 (Card Generation Interface)
-**Plan:** 0 of 3 in current phase
-**Status:** Plans ready for execution
-**Last activity:** 2026-01-14 - Created 3 plans for Phase 3 (03-01, 03-02, 03-03)
+**Plan:** 1 of 3 in current phase
+**Status:** In progress
+**Last activity:** 2026-01-15 - Completed 03-01-PLAN.md
 
-Progress: ████████░░ 29% (2/7 phases)
+Progress: █████████░ 36% (2.33/7 phases, 8/13 plans)
 
 ## Roadmap Progress
 
 - [x] **Phase 1:** Foundation & Database Setup (3/3 plans complete)
 - [x] **Phase 2:** AI Integration (2/2 plans complete)
-- [ ] **Phase 3:** Card Generation Interface (3/3 plans ready, 0/3 executed)
+- [ ] **Phase 3:** Card Generation Interface (1/3 plans complete)
 - [ ] **Phase 4:** Study Mode Interface
 - [ ] **Phase 5:** Spaced Repetition Logic
 - [ ] **Phase 6:** Deck Management & Statistics
@@ -26,6 +26,16 @@ Progress: ████████░░ 29% (2/7 phases)
 **Total:** 2/7 phases complete
 
 ## Recent Activity
+
+**2026-01-15:**
+- Completed 03-01-PLAN.md (Base Templates & Homepage):
+  - Created base.html template with Tailwind CSS CDN
+  - Created index.html template with flashcard generation form
+  - Implemented homepage route using Flask Blueprint pattern
+  - Registered main blueprint in app.py
+  - Fixed Jinja2 template syntax error from HTML comments
+  - Verified Flask app starts and homepage renders correctly
+  - **1/3 plans complete in Phase 3**
 
 **2026-01-14:**
 - Mapped existing codebase (minimal Python project with empty files)
@@ -146,18 +156,24 @@ Progress: ████████░░ 29% (2/7 phases)
 - Structured outputs guarantee schema compliance
 - Exponential backoff retry logic with jitter and rate limit header support
 - Database integration with save_to_database() and generate_and_save() methods
-- Phase 3 plans ready: 03-01-PLAN.md (templates), 03-02-PLAN.md (generation), 03-03-PLAN.md (editor)
-- Git repo with 16 commits (3 foundation + 3 database + 4 configuration + 2 planning + 2 AI service + 2 error handling & DB)
+- Base HTML template with Tailwind CSS CDN (src/templates/base.html)
+- Homepage template with flashcard generation form (src/templates/index.html)
+- Blueprint pattern for routes (src/routes/main.py registered in app.py)
+- Form configured to POST to /generate endpoint (will be created in 03-02)
+- Git repo with 18 commits (foundation + database + config + planning + AI service + templates + routes)
 
 ## Next Steps
 
-1. **Phase 3 Plans Ready!** Three plans created for Card Generation Interface
-2. **Next:** Run `/gsd:execute-phase 3` to build the web UI
-   - Creates Tailwind-styled templates with Flask routes
-   - Integrates FlashcardGenerator service with web form
-   - Adds modal card editor with live updates
-   - 2 checkpoints for UI verification (after preview, after editor)
-3. **Or:** Run `/gsd:execute-plan 03-01` to execute plans one at a time
+1. **Phase 3 in Progress:** 1 of 3 plans complete
+2. **Next:** Execute Plan 03-02 (Flashcard Generation & Preview)
+   - Implement /generate endpoint to handle form submission
+   - Integrate FlashcardGenerator service with web form
+   - Create preview template to display generated cards
+   - Checkpoint: Manual testing of generation and preview
+3. **Then:** Execute Plan 03-03 (Modal Card Editor)
+   - Build modal popup for editing flashcards
+   - Add edit endpoint for updating cards
+   - Implement JavaScript for modal interactions
 
 ---
 
