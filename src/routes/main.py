@@ -248,6 +248,10 @@ def study_summary(deck_id):
 
     The client-side JavaScript tracks all results and POSTs them at session end,
     which is more reliable than trying to maintain session state across many AJAX calls.
+
+    With spaced repetition, the summary now also shows:
+    - Total attempts (may be > card count if cards were re-queued)
+    - All cards mastered (session only ends when all "Got it!")
     """
     # Load deck from database
     deck = Deck.get_by_id(deck_id)
@@ -259,8 +263,11 @@ def study_summary(deck_id):
         data = request.get_json()
         if data and 'results' in data:
             # Store results in session for the subsequent GET request
+            # For students: Now includes total_attempts from spaced repetition tracking
             session['summary_results'] = data['results']
             session['summary_deck_id'] = deck_id
+            session['summary_total_attempts'] = data.get('total_attempts', len(data['results']))
+            session['summary_cards_mastered'] = data.get('cards_mastered', 0)
             session.modified = True
             return jsonify({'success': True}), 200
         return jsonify({'error': 'No results provided'}), 400
@@ -275,33 +282,73 @@ def study_summary(deck_id):
         # No results - redirect back to study page
         return redirect(url_for('main.study', deck_id=deck_id))
 
-    # Calculate statistics
-    # For students: We analyze the session data to compute performance metrics
-    total_cards = len(cards_studied)
-    success_count = sum(1 for card in cards_studied if card.get('success'))
-    needs_practice_count = total_cards - success_count
-    success_rate = round((success_count / total_cards) * 100, 1) if total_cards > 0 else 0
+    # Get spaced repetition metrics from session
+    # For students: total_attempts counts how many times cards were shown overall
+    # This differs from card count because "Needs Practice" cards get re-queued
+    total_attempts = session.get('summary_total_attempts', len(cards_studied))
+    cards_mastered = session.get('summary_cards_mastered', 0)
 
-    # Get cards needing practice - use question text from JavaScript results
-    # For students: The JavaScript already sent us the question text, so we don't need to query DB
-    practice_questions = [card.get('question', '') for card in cards_studied if not card.get('success')]
+    # Calculate statistics from all attempts
+    # For students: With spaced repetition, results array includes ALL attempts
+    # including repeated attempts on re-queued cards
+    total_cards = cards_mastered  # Number of unique cards (all mastered by end)
+
+    # Count unique cards and their FINAL status (all should be success=True at end)
+    # For students: Since session only ends when all cards mastered, final success rate is 100%
+    # But we show the journey - how many attempts were needed
+    unique_card_ids = set(card.get('card_id') for card in cards_studied)
+    total_unique_cards = len(unique_card_ids) if unique_card_ids else cards_mastered
+
+    # Use unique card count (same as cards_mastered since all are mastered at end)
+    if total_unique_cards == 0:
+        total_unique_cards = cards_mastered if cards_mastered > 0 else len(cards_studied)
+
+    # Success rate based on all attempts (some were "Needs Practice")
+    success_attempts = sum(1 for card in cards_studied if card.get('success'))
+    needs_practice_attempts = len(cards_studied) - success_attempts
+    success_rate = round((success_attempts / len(cards_studied)) * 100, 1) if cards_studied else 100
+
+    # Get questions that needed multiple attempts
+    # For students: Count how many times each card was shown to identify trouble spots
+    card_attempt_counts = {}
+    for result in cards_studied:
+        card_id = result.get('card_id')
+        if card_id:
+            card_attempt_counts[card_id] = card_attempt_counts.get(card_id, 0) + 1
+
+    # Find cards that needed extra practice (shown more than once)
+    # For students: These are the cards that were re-queued at least once
+    cards_needing_extra = []
+    for result in cards_studied:
+        card_id = result.get('card_id')
+        question = result.get('question', '')
+        attempt_count = card_attempt_counts.get(card_id, 1)
+        if attempt_count > 1 and question not in [c['question'] for c in cards_needing_extra]:
+            cards_needing_extra.append({
+                'question': question,
+                'attempts': attempt_count
+            })
 
     # Clear session study data
     # For students: Important cleanup - we remove the session data after displaying it
     session.pop('summary_results', None)
     session.pop('summary_deck_id', None)
+    session.pop('summary_total_attempts', None)
+    session.pop('summary_cards_mastered', None)
     session.pop('studying_deck_id', None)
     session.pop('cards_studied', None)
 
     # Render summary template with all the calculated data
+    # For students: Template now receives additional spaced repetition stats
     return render_template(
         'summary.html',
         deck=deck,
-        total_cards=total_cards,
-        success_count=success_count,
-        needs_practice_count=needs_practice_count,
+        total_cards=total_unique_cards,
+        total_attempts=total_attempts,
+        success_count=success_attempts,
+        needs_practice_count=needs_practice_attempts,
         success_rate=success_rate,
-        practice_questions=practice_questions
+        cards_needing_extra=cards_needing_extra
     )
 
 
