@@ -170,6 +170,65 @@ def study(deck_id):
     )
 
 
+@main.route('/study/<int:deck_id>/grade', methods=['POST'])
+def grade_card(deck_id):
+    """
+    Grade a flashcard during study session and update statistics.
+
+    For students: This endpoint receives JSON data from the JavaScript gradeCard() function.
+    It validates the session state, updates the flashcard's statistics in the database,
+    and tracks the result in the session for summary statistics later.
+    """
+    # Get JSON data from request
+    # For students: The fetch() call from JavaScript sends card_id and success (boolean)
+    data = request.get_json()
+
+    # Validate request has JSON data
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    # Extract card_id and success from request
+    card_id = data.get('card_id')
+    success = data.get('success')
+
+    # Validate required fields are present
+    if card_id is None or success is None:
+        return jsonify({'error': 'Missing card_id or success'}), 400
+
+    # Validate session state
+    # For students: We check that the deck_id matches the session to prevent
+    # someone from grading cards from a different deck than they're studying
+    if session.get('studying_deck_id') != deck_id:
+        return jsonify({'error': 'Invalid session'}), 403
+
+    # Update flashcard statistics in database
+    # For students: Flashcard.update_stats() increments studied_count,
+    # updates success_count if success=True, sets last_studied timestamp,
+    # and updates the streak counter
+    try:
+        updated_card = Flashcard.update_stats(card_id, success)
+        if not updated_card:
+            return jsonify({'error': 'Flashcard not found'}), 404
+
+        # Track this result in the session
+        # For students: We append the result to the session's cards_studied list
+        # This will be used later for the session summary statistics
+        if 'cards_studied' not in session:
+            session['cards_studied'] = []
+        session['cards_studied'].append({
+            'card_id': card_id,
+            'success': success
+        })
+
+        # Return success response
+        return jsonify({'success': True}), 200
+
+    except Exception as e:
+        # For students: If something goes wrong with the database update,
+        # return a 500 error with the error message
+        return jsonify({'error': str(e)}), 500
+
+
 @main.route('/card/<int:card_id>/edit', methods=['POST'])
 def edit_card(card_id):
     """
