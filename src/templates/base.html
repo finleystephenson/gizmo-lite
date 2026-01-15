@@ -11,11 +11,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
-    <!-- Header section with app title -->
+    <!-- Header section with app title and navigation -->
     <!-- For students: This header appears on every page that extends this template -->
     <header class="bg-blue-600 text-white p-4">
-        <div class="container mx-auto">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold">AI Flashcard Generator</h1>
+            <!-- Navigation link to My Decks page -->
+            <!-- For students: This link is always visible for easy access to saved decks -->
+            <a href="/decks" class="text-white hover:text-gray-200 font-semibold transition-colors">
+                My Decks
+            </a>
         </div>
     </header>
 
