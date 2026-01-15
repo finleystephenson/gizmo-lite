@@ -7,7 +7,7 @@ For students: Routes are URL endpoints that your Flask app responds to.
 Each route function (called a "view") handles a specific URL pattern.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify
 from src.services.flashcard_generator import FlashcardGenerator
 from src.models.deck import Deck
 from src.models.flashcard import Flashcard
@@ -88,3 +88,37 @@ def preview(deck_id):
     # Render preview template with deck and flashcard data
     # For students: These variables become available in the template as {{ deck }} and {{ flashcards }}
     return render_template('preview.html', deck=deck, flashcards=flashcards)
+
+
+@main.route('/card/<int:card_id>/edit', methods=['POST'])
+def edit_card(card_id):
+    """
+    Update flashcard question and answer.
+
+    For students: This endpoint handles AJAX requests from JavaScript.
+    It accepts JSON data (not form data) and returns JSON response.
+    The @main.route() decorator with methods=['POST'] means this only
+    handles POST requests to /card/<card_id>/edit URLs.
+    """
+    # Get JSON data from request
+    # For students: request.get_json() parses the JSON body sent by fetch()
+    data = request.get_json()
+
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+
+    question = data.get('question')
+    answer = data.get('answer')
+
+    # Validate inputs
+    if not question or not answer:
+        return jsonify({'error': 'Question and answer are required'}), 400
+
+    # Update card in database
+    # For students: Flashcard.update() is from Phase 1 database models
+    # It updates only the specified fields for the given card_id
+    try:
+        Flashcard.update(card_id, question=question, answer=answer)
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
