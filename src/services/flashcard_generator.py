@@ -131,8 +131,10 @@ Each flashcard should help the student recall and understand the material."""
         # Use retry wrapper for resilience
         response = self._retry_with_backoff(api_call)
 
-        # Extract parsed content from response (beta.messages.parse returns ParsedBetaMessage)
-        return response.parsed
+        # Extract parsed content from response
+        # beta.messages.parse returns ParsedBetaMessage with content list
+        # The first content item (ParsedBetaTextBlock) has parsed_output attribute
+        return response.content[0].parsed_output
 
     def save_to_database(self, flashcard_set: FlashcardSet) -> int:
         """
