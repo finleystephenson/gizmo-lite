@@ -90,6 +90,44 @@ def preview(deck_id):
     return render_template('preview.html', deck=deck, flashcards=flashcards)
 
 
+@main.route('/decks')
+def decks():
+    """
+    Display all saved decks for user to select which one to study.
+
+    For students: This route provides the entry point to study mode.
+    It queries all decks and calculates flashcard counts for each deck.
+    """
+    # Get all decks from database
+    # For students: Deck.get_all() returns a list of deck dictionaries
+    decks = Deck.get_all()
+
+    # Add card count to each deck
+    # For students: We loop through each deck and count its flashcards
+    # The card_count is added to the deck dictionary for display
+    decks_with_counts = []
+    for deck in decks:
+        # Get all flashcards for this deck
+        flashcards = Flashcard.get_by_deck(deck['id'])
+        card_count = len(flashcards)
+
+        # Format the created_at timestamp as a human-readable date
+        # For students: Unix timestamp (seconds since 1970) → readable string
+        from datetime import datetime
+        created_date = datetime.fromtimestamp(deck['created_at']).strftime('%b %d, %Y')
+
+        # Add count and formatted date to deck data
+        decks_with_counts.append({
+            **deck,
+            'card_count': card_count,
+            'created_date': created_date
+        })
+
+    # Render decks template with the enhanced deck data
+    # For students: The template receives decks with card_count and created_date fields
+    return render_template('decks.html', decks=decks_with_counts)
+
+
 @main.route('/card/<int:card_id>/edit', methods=['POST'])
 def edit_card(card_id):
     """
