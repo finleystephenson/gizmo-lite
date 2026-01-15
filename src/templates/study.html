@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Studying: {{ deck.name }} - AI Flashcard Generator{% endblock %}
+
+{% block content %}
+<!-- Interactive study mode - one flashcard at a time -->
+<!-- For students: This page implements the classic flashcard study flow: -->
+<!-- 1. See question → 2. Think about it → 3. Reveal answer → 4. Grade yourself -->
+<div class="max-w-3xl mx-auto">
+    <!-- Progress indicator -->
+    <!-- For students: Shows which card you're on (e.g., "Card 1 of 10") -->
+    <div class="mb-6 text-center">
+        <p class="text-gray-600 text-lg">
+            Card <span id="currentCardNumber">1</span> of <span id="totalCards">{{ total_cards }}</span>
+        </p>
+        <!-- Progress bar -->
+        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div id="progressBar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: {{ (1 / total_cards * 100)|round(1) }}%"></div>
+        </div>
+    </div>
+
+    <!-- Flashcard display area -->
+    <!-- For students: This card switches between question state and answer state -->
+    <!-- JavaScript controls which state is visible -->
+    <div class="bg-white rounded-lg shadow-xl p-8 min-h-64 flex flex-col justify-center">
+
+        <!-- Question state (shown by default) -->
+        <div id="questionState">
+            <!-- Question text (large, centered) -->
+            <div id="questionText" class="text-2xl font-bold text-center mb-8 text-gray-800"></div>
+
+            <!-- Reveal Answer button -->
+            <button onclick="revealAnswer()"
+                    class="w-full bg-green-600 text-white py-4 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-lg">
+                Reveal Answer
+            </button>
+        </div>
+
+        <!-- Answer state (hidden by default) -->
+        <div id="answerState" class="hidden">
+            <!-- Question text (smaller, at top) -->
+            <div id="questionTextSmall" class="text-lg font-semibold mb-4 text-gray-600"></div>
+
+            <!-- Answer text (large, centered) -->
+            <div id="answerText" class="text-xl text-center mb-8 text-gray-800 border-t-2 border-gray-200 pt-4"></div>
+
+            <!-- Grading buttons -->
+            <!-- For students: These buttons let you self-assess your performance -->
+            <div class="flex flex-col sm:flex-row gap-4">
+                <button onclick="gradeCard(true)"
+                        class="flex-1 bg-green-600 text-white py-4 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-lg">
+                    Got it! ✓
+                </button>
+                <button onclick="gradeCard(false)"
+                        class="flex-1 bg-yellow-500 text-white py-4 px-6 rounded-md hover:bg-yellow-600 transition-colors font-bold text-lg">
+                    Needs Practice
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Back to decks link -->
+    <div class="mt-6 text-center">
+        <a href="/decks" class="text-blue-600 hover:text-blue-800 font-semibold">
+            ← Back to My Decks
+        </a>
+    </div>
+</div>
+
+<script>
+// Store flashcards data from Jinja template
+// For students: The |tojson filter converts Python data to JavaScript
+// This makes the flashcards data available to our JavaScript functions
+const cards = {{ flashcards|tojson }};
+const totalCards = {{ total_cards }};
+const deckId = {{ deck.id }};
+
+// Track which card we're currently studying
+// For students: JavaScript manages the card index on the client side
+// This avoids page reloads between cards for a smoother experience
+let currentIndex = 0;
+
+// Initialize the first card on page load
+// For students: This function runs when the page loads
+// It displays the first flashcard's question
+function init() {
+    displayCard();
+}
+
+// Display the current card in question state
+// For students: This function updates the DOM with the current card's question
+// It resets to question state (answer hidden) for each new card
+function displayCard() {
+    const card = cards[currentIndex];
+
+    // Update progress indicator
+    document.getElementById('currentCardNumber').textContent = currentIndex + 1;
+    const progressPercent = ((currentIndex + 1) / totalCards * 100).toFixed(1);
+    document.getElementById('progressBar').style.width = progressPercent + '%';
+
+    // Show question text in both places (large for question state, small for answer state)
+    document.getElementById('questionText').textContent = card.question;
+    document.getElementById('questionTextSmall').textContent = card.question;
+
+    // Show answer text (for when we reveal it)
+    document.getElementById('answerText').textContent = card.answer;
+
+    // Reset to question state (hide answer)
+    document.getElementById('questionState').classList.remove('hidden');
+    document.getElementById('answerState').classList.add('hidden');
+}
+
+// Reveal the answer for the current card
+// For students: This function toggles from question state to answer state
+// It's triggered when the user clicks "Reveal Answer"
+function revealAnswer() {
+    // Hide question state, show answer state
+    document.getElementById('questionState').classList.add('hidden');
+    document.getElementById('answerState').classList.remove('hidden');
+}
+
+// Grade the current card and move to next
+// For students: This function does three things:
+// 1. Sends the grade to the server (POST to /study/{deck_id}/grade)
+// 2. Increments the card index to move to the next card
+// 3. Either displays the next card or redirects to summary if done
+async function gradeCard(success) {
+    const card = cards[currentIndex];
+
+    try {
+        // Send grade to server
+        // For students: fetch() makes an AJAX request without page reload
+        // We send card_id and success (true/false) as JSON
+        const response = await fetch(`/study/${deckId}/grade`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                card_id: card.id,
+                success: success
+            })
+        });
+
+        if (!response.ok) {
+            alert('Failed to save grade. Please try again.');
+            return;
+        }
+
+        // Move to next card
+        currentIndex++;
+
+        // Check if we've completed all cards
+        if (currentIndex >= totalCards) {
+            // Redirect to summary page
+            // For students: The summary page will show session statistics
+            window.location.href = `/study/${deckId}/summary`;
+        } else {
+            // Display next card
+            displayCard();
+        }
+
+    } catch (error) {
+        alert('Error saving grade: ' + error.message);
+    }
+}
+
+// Initialize on page load
+// For students: This runs as soon as the page loads
+init();
+</script>
+{% endblock %}
