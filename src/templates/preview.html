@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Preview - {{ deck.name }} - AI Flashcard Generator{% endblock %}
+
+{% block content %}
+<!-- Preview page displaying all generated flashcards -->
+<!-- For students: This page shows all cards at once (not study mode) -->
+<!-- Each card displays both question and answer for review before studying -->
+<div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold mb-2">{{ deck.name }}</h2>
+    <p class="text-gray-600 mb-6">{{ flashcards|length }} flashcards generated</p>
+
+    <!-- Grid of flashcards -->
+    <!-- For students: Each card is numbered and displays question/answer -->
+    <!-- The "Edit" button will open a modal in Plan 03-03 -->
+    <div class="grid gap-4 mb-8">
+        {% for card in flashcards %}
+        <div class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+            <div class="flex justify-between items-start">
+                <div class="flex-1">
+                    <!-- Question (bold) -->
+                    <div class="font-bold text-lg mb-2">{{ loop.index }}. {{ card.question }}</div>
+                    <!-- Answer (gray text) -->
+                    <div class="text-gray-700">{{ card.answer }}</div>
+                </div>
+                <!-- Edit button (will be implemented in Plan 03-03) -->
+                <button onclick="editCard({{ card.id }})"
+                        class="ml-4 text-blue-600 hover:text-blue-800 font-semibold">
+                    Edit
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Action buttons at bottom -->
+    <!-- For students: These buttons provide clear next steps -->
+    <div class="flex gap-4">
+        <!-- Start Studying button (Phase 4 will implement /study route) -->
+        <a href="/study/{{ deck.id }}"
+           class="flex-1 bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-center">
+            Start Studying
+        </a>
+        <!-- Generate More Cards button returns to homepage -->
+        <a href="/"
+           class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-md hover:bg-gray-700 transition-colors font-bold text-center">
+            Generate More Cards
+        </a>
+    </div>
+</div>
+
+<!-- JavaScript for edit functionality (will be implemented in Plan 03-03) -->
+<script>
+function editCard(cardId) {
+    // For students: This function will open a modal to edit the card
+    // Implementation coming in Plan 03-03
+    alert('Edit functionality coming in next plan!');
+}
+</script>
+{% endblock %}

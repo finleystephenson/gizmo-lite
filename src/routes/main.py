@@ -9,6 +9,8 @@ Each route function (called a "view") handles a specific URL pattern.
 
 from flask import Blueprint, render_template, request, redirect, url_for
 from src.services.flashcard_generator import FlashcardGenerator
+from src.models.deck import Deck
+from src.models.flashcard import Flashcard
 
 # Create a Blueprint named 'main'
 # Blueprints organize related routes into modules
@@ -64,3 +66,25 @@ def generate():
         # For students: The FlashcardGenerator wraps API errors in ValueError
         # with helpful messages like "Rate limit exceeded" or "Invalid API key"
         return render_template('error.html', error=str(e)), 500
+
+
+@main.route('/preview/<int:deck_id>')
+def preview(deck_id):
+    """
+    Preview generated flashcards before study.
+
+    For students: The <int:deck_id> in the route means Flask will
+    automatically convert the URL parameter to an integer and pass it
+    as the deck_id argument to this function.
+    """
+    # Load deck and flashcards from database
+    # For students: These are the Deck and Flashcard models from Phase 1
+    deck = Deck.get_by_id(deck_id)
+    if not deck:
+        return "Deck not found", 404
+
+    flashcards = Flashcard.get_by_deck(deck_id)
+
+    # Render preview template with deck and flashcard data
+    # For students: These variables become available in the template as {{ deck }} and {{ flashcards }}
+    return render_template('preview.html', deck=deck, flashcards=flashcards)
