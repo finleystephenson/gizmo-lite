@@ -13,6 +13,7 @@ When you run this file, Flask will:
 from flask import Flask
 from src.config import Config
 from src.models.database import init_db
+from src.routes.main import main
 
 # Create Flask application instance
 # template_folder: Where Flask looks for HTML templates (we'll create these in Phase 3)
@@ -28,18 +29,10 @@ app.config.from_object(Config)
 # It's safe to run multiple times - won't delete existing data
 init_db()
 
-
-# Basic route for testing
-# This is a temporary homepage - we'll build the real UI in Phase 3
-@app.route('/')
-def index():
-    """
-    Homepage route - returns simple welcome message.
-
-    For students: Routes define the URLs your app responds to.
-    The @app.route('/') decorator means this function handles requests to the root URL.
-    """
-    return "AI Flashcard Generator - Coming Soon"
+# Register blueprints (route modules)
+# For students: Blueprints organize routes into separate modules
+# The main blueprint handles homepage and flashcard generation routes
+app.register_blueprint(main)
 
 
 # Run the Flask development server

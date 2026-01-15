@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Generate Flashcards - AI Flashcard Generator{% endblock %}
+
+{% block content %}
+<!-- For students: This template extends base.html, so it inherits the header and page structure -->
+<!-- We only need to define what goes in the content block area -->
+
+<div class="max-w-2xl mx-auto mt-8">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Generate Flashcards</h2>
+
+    <p class="text-gray-600 mb-8">
+        Paste your study notes below and we'll generate flashcards to help you learn the material.
+    </p>
+
+    <!-- Flashcard generation form -->
+    <!-- For students: This form will POST to /generate (we'll create that endpoint in the next plan) -->
+    <!-- method="POST" means form data is sent in the request body (secure for larger data) -->
+    <form method="POST" action="/generate" class="bg-white p-6 rounded-lg shadow-md">
+
+        <!-- Topic Name Input -->
+        <!-- For students: This will be used to organize cards into decks by topic -->
+        <div class="mb-4">
+            <label for="topic" class="block text-gray-700 font-bold mb-2">
+                Topic Name
+            </label>
+            <input
+                type="text"
+                id="topic"
+                name="topic"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="e.g., Python Basics, Flask Routes, Biology Chapter 4"
+            >
+            <p class="text-sm text-gray-500 mt-1">
+                Give your flashcard deck a descriptive name
+            </p>
+        </div>
+
+        <!-- Study Notes Textarea -->
+        <!-- For students: This is where students paste their revision notes -->
+        <!-- rows="10" makes it tall enough for substantial content -->
+        <div class="mb-4">
+            <label for="notes" class="block text-gray-700 font-bold mb-2">
+                Study Notes
+            </label>
+            <textarea
+                id="notes"
+                name="notes"
+                rows="10"
+                required
+                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Paste your study notes here...
+
+For example:
+- Key concepts from your textbook
+- Lecture notes
+- Summary of a chapter
+
+The AI will generate flashcards focusing on the most important information."
+            ></textarea>
+            <p class="text-sm text-gray-500 mt-1">
+                The more detailed your notes, the better the flashcards will be
+            </p>
+        </div>
+
+        <!-- Submit Button -->
+        <!-- For students: This button submits the form data to /generate -->
+        <!-- hover:bg-blue-700 makes it darker on mouse hover -->
+        <!-- transition-colors animates the color change smoothly -->
+        <button
+            type="submit"
+            class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-bold"
+        >
+            Generate Flashcards
+        </button>
+    </form>
+</div>
+{% endblock %}
