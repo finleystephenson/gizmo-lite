@@ -6,36 +6,52 @@
 
 ## Current Status
 
-**Phase:** 3 of 7 (Card Generation Interface)
+**Phase:** 4 of 7 (Study Mode Interface)
 **Plan:** 1 of 3 in current phase
 **Status:** In progress
-**Last activity:** 2026-01-15 - Completed 03-01-PLAN.md
+**Last activity:** 2026-01-15 - Completed 04-01-PLAN.md (Deck Selection Page)
 
-Progress: █████████░ 36% (2.33/7 phases, 8/13 plans)
+Progress: █████████████░ 50% (3/7 phases, 9/13 plans)
 
 ## Roadmap Progress
 
 - [x] **Phase 1:** Foundation & Database Setup (3/3 plans complete)
 - [x] **Phase 2:** AI Integration (2/2 plans complete)
-- [ ] **Phase 3:** Card Generation Interface (1/3 plans complete)
-- [ ] **Phase 4:** Study Mode Interface
+- [x] **Phase 3:** Card Generation Interface (3/3 plans complete) ✅
+- [ ] **Phase 4:** Study Mode Interface (1/3 plans complete)
 - [ ] **Phase 5:** Spaced Repetition Logic
 - [ ] **Phase 6:** Deck Management & Statistics
 - [ ] **Phase 7:** Export/Import & Polish
 
-**Total:** 2/7 phases complete
+**Total:** 3/7 phases complete, 9/13 plans complete
 
 ## Recent Activity
 
 **2026-01-15:**
-- Completed 03-01-PLAN.md (Base Templates & Homepage):
-  - Created base.html template with Tailwind CSS CDN
-  - Created index.html template with flashcard generation form
-  - Implemented homepage route using Flask Blueprint pattern
-  - Registered main blueprint in app.py
-  - Fixed Jinja2 template syntax error from HTML comments
-  - Verified Flask app starts and homepage renders correctly
-  - **1/3 plans complete in Phase 3**
+- **Phase 4 Started:** Study Mode Interface (1/3 plans)
+  - Completed 04-01: Deck Selection Page
+    - Created decks.html showing all saved decks with card counts
+    - Implemented /decks route with data enrichment (card counts, formatted dates)
+    - Added My Decks navigation link in header visible on all pages
+    - Empty state UI for when no decks exist
+    - Study Now buttons link to /study/{deck_id} (next plan)
+- **Phase 3 Complete:** Card Generation Interface (3/3 plans)
+  - Completed 03-01: Base Templates & Homepage
+    - Created base.html with Tailwind CSS CDN
+    - Created index.html with flashcard generation form
+    - Implemented Blueprint pattern for routes
+  - Completed 03-02: Flashcard Generation & Preview
+    - Implemented /generate endpoint with AI integration
+    - Created preview.html showing all generated cards
+    - Created error.html for API error handling
+    - Fixed API response parsing: response.content[0].parsed_output
+  - Completed 03-03: Modal Card Editor
+    - Added modal popup for editing flashcards
+    - Implemented /card/<id>/edit endpoint with JSON API
+    - Added Flashcard.update() method to model
+    - JavaScript updates UI without page reload
+  - All checkpoints verified and approved by user
+  - Working end-to-end: form → AI generation → preview → edit → study button ready
 
 **2026-01-14:**
 - Mapped existing codebase (minimal Python project with empty files)
@@ -125,6 +141,8 @@ Progress: █████████░ 36% (2.33/7 phases, 8/13 plans)
 | Modal for card editing | Cleaner UX, no page navigation, modern pattern | 2026-01-14 |
 | Fetch API for AJAX updates | Modern JavaScript, updates without page reload | 2026-01-14 |
 | Sequential wave execution | Plan 03-01 → 03-02 → 03-03 (UI builds on previous) | 2026-01-14 |
+| Format timestamps in Python route | Simpler than custom Jinja2 filters for students | 2026-01-15 |
+| Navigation link in header | Global access to decks from any page, modern UX pattern | 2026-01-15 |
 
 ## Active Context
 
@@ -160,20 +178,21 @@ Progress: █████████░ 36% (2.33/7 phases, 8/13 plans)
 - Homepage template with flashcard generation form (src/templates/index.html)
 - Blueprint pattern for routes (src/routes/main.py registered in app.py)
 - Form configured to POST to /generate endpoint (will be created in 03-02)
-- Git repo with 18 commits (foundation + database + config + planning + AI service + templates + routes)
+- Git repo with 28+ commits (foundation + database + config + planning + AI service + templates + routes + generation + preview + editor + deck selection)
+- Full UI stack working: homepage form → AI generation → card preview → modal editor
+- Deck selection page showing all decks with card counts
+- My Decks navigation link in header visible on all pages
+- Preview page with "Start Studying" button linking to study mode
 
 ## Next Steps
 
-1. **Phase 3 in Progress:** 1 of 3 plans complete
-2. **Next:** Execute Plan 03-02 (Flashcard Generation & Preview)
-   - Implement /generate endpoint to handle form submission
-   - Integrate FlashcardGenerator service with web form
-   - Create preview template to display generated cards
-   - Checkpoint: Manual testing of generation and preview
-3. **Then:** Execute Plan 03-03 (Modal Card Editor)
-   - Build modal popup for editing flashcards
-   - Add edit endpoint for updating cards
-   - Implement JavaScript for modal interactions
+1. **Plan 04-01 Complete ✅** - Deck Selection Page functional
+2. **Next Plan:** 04-02 - Study Mode Interface
+   - Interactive study session with one card at a time
+   - Show question → user thinks → reveal answer → self-grade
+   - Track statistics (studied_count, success_count, last_studied, streak)
+   - Session end summary with performance stats
+3. **Recommended command:** `/gsd:execute-plan .planning/phases/04-study-mode-ui/04-02-PLAN.md` to implement study mode
 
 ---
 
