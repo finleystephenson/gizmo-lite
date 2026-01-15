@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AI Flashcard Generator{% endblock %}</title>
+
+    <!-- Tailwind CSS CDN - provides utility classes for styling -->
+    <!-- For students: Tailwind lets you style elements using class names like "bg-blue-600" -->
+    <!-- No need to write custom CSS files - just add classes to HTML elements -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header section with app title -->
+    <!-- For students: This header appears on every page that extends this template -->
+    <header class="bg-blue-600 text-white p-4">
+        <div class="container mx-auto">
+            <h1 class="text-2xl font-bold">AI Flashcard Generator</h1>
+        </div>
+    </header>
+
+    <!-- Main content area -->
+    <!-- For students: {% block content %} is a Jinja2 placeholder -->
+    <!-- Child templates will fill this block with their specific content -->
+    <main class="container mx-auto p-4">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>
