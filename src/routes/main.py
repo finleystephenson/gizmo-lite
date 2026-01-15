@@ -7,7 +7,7 @@ For students: Routes are URL endpoints that your Flask app responds to.
 Each route function (called a "view") handles a specific URL pattern.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, session
 from src.services.flashcard_generator import FlashcardGenerator
 from src.models.deck import Deck
 from src.models.flashcard import Flashcard
@@ -126,6 +126,48 @@ def decks():
     # Render decks template with the enhanced deck data
     # For students: The template receives decks with card_count and created_date fields
     return render_template('decks.html', decks=decks_with_counts)
+
+
+@main.route('/study/<int:deck_id>')
+def study(deck_id):
+    """
+    Start study session for a deck - loads all flashcards and initializes session tracking.
+
+    For students: This route handles GET requests to /study/<deck_id>.
+    It loads the deck and all flashcards, then renders the study template.
+    Session tracking allows us to monitor the study session across multiple requests.
+    """
+    # Load deck from database
+    # For students: Deck.get_by_id() returns None if the deck doesn't exist
+    deck = Deck.get_by_id(deck_id)
+    if not deck:
+        return "Deck not found", 404
+
+    # Load all flashcards for this deck
+    # For students: Flashcard.get_by_deck() returns a list of all cards in the deck
+    flashcards = Flashcard.get_by_deck(deck_id)
+
+    # Check if deck has any flashcards
+    if not flashcards:
+        return "This deck has no flashcards", 400
+
+    # Initialize session state for tracking this study session
+    # For students: Flask session is a secure cookie that persists across requests
+    # We store the deck_id to validate grade requests and track which cards were studied
+    session['studying_deck_id'] = deck_id
+    session['cards_studied'] = []  # Will store results: [{'card_id': 1, 'success': True}, ...]
+
+    # Render study template with deck and flashcards data
+    # For students: The template receives three variables:
+    # - deck: dict with id and name
+    # - flashcards: list of all cards (id, question, answer)
+    # - total_cards: count for progress indicator
+    return render_template(
+        'study.html',
+        deck=deck,
+        flashcards=flashcards,
+        total_cards=len(flashcards)
+    )
 
 
 @main.route('/card/<int:card_id>/edit', methods=['POST'])
