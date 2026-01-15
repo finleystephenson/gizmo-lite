@@ -61,6 +61,26 @@ class Flashcard:
         return dict(row) if row else None
 
     @staticmethod
+    def get_by_id(flashcard_id):
+        """
+        Get a single flashcard by ID.
+
+        Args:
+            flashcard_id (int): Flashcard ID to retrieve
+
+        Returns:
+            dict: Flashcard data or None if not found
+        """
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT * FROM flashcards WHERE id = ?', (flashcard_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        return dict(row) if row else None
+
+    @staticmethod
     def get_by_deck(deck_id):
         """
         Get all flashcards for a specific deck.

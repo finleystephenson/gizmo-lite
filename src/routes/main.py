@@ -229,6 +229,75 @@ def grade_card(deck_id):
         return jsonify({'error': str(e)}), 500
 
 
+@main.route('/study/<int:deck_id>/summary')
+def study_summary(deck_id):
+    """
+    Display session summary with performance statistics and cards needing practice.
+
+    For students: This route shows the results of a completed study session.
+    It calculates statistics from the session data, displays performance metrics,
+    and cleans up the session state to prevent data leaks between sessions.
+    """
+    # Validate deck_id matches the session
+    # For students: Security check - ensure the deck in the URL matches the session
+    # This prevents users from viewing summaries for decks they didn't just study
+    if session.get('studying_deck_id') != deck_id:
+        # No active study session for this deck - redirect to decks page
+        return redirect(url_for('main.decks'))
+
+    # Load deck from database
+    deck = Deck.get_by_id(deck_id)
+    if not deck:
+        return "Deck not found", 404
+
+    # Get session results
+    # For students: cards_studied is a list of dicts: [{'card_id': 1, 'success': True}, ...]
+    cards_studied = session.get('cards_studied', [])
+
+    # Validate we have session data
+    if not cards_studied:
+        # No cards studied in this session - redirect back to study page
+        return redirect(url_for('main.study', deck_id=deck_id))
+
+    # Calculate statistics
+    # For students: We analyze the session data to compute performance metrics
+    total_cards = len(cards_studied)
+    success_count = sum(1 for card in cards_studied if card['success'])
+    needs_practice_count = total_cards - success_count
+    success_rate = round((success_count / total_cards) * 100, 1) if total_cards > 0 else 0
+
+    # Get cards needing practice
+    # For students: We extract the card_ids where success=False, then load those flashcards
+    needs_practice_ids = [card['card_id'] for card in cards_studied if not card['success']]
+    practice_questions = []
+
+    for card_id in needs_practice_ids:
+        # Load full flashcard data for each card that needs practice
+        flashcard = Flashcard.get_by_id(card_id)
+        if flashcard:
+            # Extract just the question text for display
+            practice_questions.append(flashcard['question'])
+
+    # Clear session study data
+    # For students: Important cleanup - we remove the session data after displaying it
+    # This prevents the summary from being shown again and prevents data contamination
+    # between different study sessions
+    session.pop('studying_deck_id', None)
+    session.pop('cards_studied', None)
+
+    # Render summary template with all the calculated data
+    # For students: The template receives all variables needed to display the summary
+    return render_template(
+        'summary.html',
+        deck=deck,
+        total_cards=total_cards,
+        success_count=success_count,
+        needs_practice_count=needs_practice_count,
+        success_rate=success_rate,
+        practice_questions=practice_questions
+    )
+
+
 @main.route('/card/<int:card_id>/edit', methods=['POST'])
 def edit_card(card_id):
     """
