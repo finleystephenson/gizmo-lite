@@ -75,14 +75,41 @@ const cards = {{ flashcards|tojson }};
 const totalCards = {{ total_cards }};
 const deckId = {{ deck.id }};
 
-// Track which card we're currently studying
-// For students: JavaScript manages the card index on the client side
-// This avoids page reloads between cards for a smoother experience
-let currentIndex = 0;
+// ============================================================================
+// SPACED REPETITION: Card Queue System
+// ============================================================================
+// For students: This implements simple spaced repetition within a session.
+// Instead of going through cards once, cards marked "Needs Practice" get
+// re-queued at the end. The session only completes when ALL cards have been
+// answered "Got it!" at least once.
+//
+// How it works:
+// 1. cardQueue starts as [0, 1, 2, ..., n-1] (indices of all cards)
+// 2. We always study the card at the front of the queue
+// 3. "Got it!" = card mastered, remove from queue (it was already shifted)
+// 4. "Needs Practice" = push the card index to the END of the queue
+// 5. Session ends when queue is empty (all cards mastered)
+// ============================================================================
+
+// Initialize card queue with all card indices [0, 1, 2, ..., totalCards-1]
+// For students: Array.from creates an array, then map fills it with indices
+let cardQueue = Array.from({length: totalCards}, (_, i) => i);
+
+// Track which cards have been "mastered" (answered "Got it!" at least once)
+// For students: A Set is like an array but automatically prevents duplicates
+const masteredCards = new Set();
+
+// Track how many times each card has been shown (attempts per card)
+// For students: Object used as a dictionary { cardId: attemptCount }
+const cardAttempts = {};
 
 // Track study results client-side (more reliable than server sessions)
 // For students: We store results in JavaScript and send them all at the end
+// Note: This now tracks ALL attempts, including re-queued cards
 const studyResults = [];
+
+// Track total cards shown (for progress display purposes)
+let cardsShown = 0;
 
 // Initialize the first card on page load
 // For students: This function runs when the page loads
@@ -95,11 +122,25 @@ function init() {
 // For students: This function updates the DOM with the current card's question
 // It resets to question state (answer hidden) for each new card
 function displayCard() {
-    const card = cards[currentIndex];
+    // Get card index from FRONT of queue (peek, don't remove yet)
+    // For students: cardQueue[0] is the first element in the array
+    const cardIndex = cardQueue[0];
+    const card = cards[cardIndex];
 
-    // Update progress indicator
-    document.getElementById('currentCardNumber').textContent = currentIndex + 1;
-    const progressPercent = ((currentIndex + 1) / totalCards * 100).toFixed(1);
+    // Track attempt for this card
+    // For students: Increment the attempt counter each time card is shown
+    cardAttempts[card.id] = (cardAttempts[card.id] || 0) + 1;
+    cardsShown++;
+
+    // Update progress indicator to show queue status
+    // For students: We show how many cards remain to master, not linear progress
+    const masteredCount = masteredCards.size;
+    const remainingCount = cardQueue.length;
+    document.getElementById('currentCardNumber').textContent = masteredCount + 1;
+    document.getElementById('totalCards').textContent = totalCards;
+
+    // Progress bar shows percentage of cards MASTERED (not just seen)
+    const progressPercent = ((masteredCount / totalCards) * 100).toFixed(1);
     document.getElementById('progressBar').style.width = progressPercent + '%';
 
     // Show question text in both places (large for question state, small for answer state)
@@ -126,14 +167,18 @@ function revealAnswer() {
 // Grade the current card and move to next
 // For students: This function does three things:
 // 1. Sends the grade to the server (POST to /study/{deck_id}/grade)
-// 2. Tracks the result client-side in studyResults array
+// 2. Updates the card queue based on grade (re-queue if "Needs Practice")
 // 3. Either displays the next card or redirects to summary if done
 async function gradeCard(success) {
-    const card = cards[currentIndex];
+    // Remove card from FRONT of queue (we already displayed it)
+    // For students: shift() removes and returns the first element
+    const cardIndex = cardQueue.shift();
+    const card = cards[cardIndex];
 
     try {
         // Send grade to server to update database statistics
         // For students: fetch() makes an AJAX request without page reload
+        // Each attempt is recorded in the database (studied_count increments)
         const response = await fetch(`/study/${deckId}/grade`, {
             method: 'POST',
             credentials: 'same-origin',
@@ -145,29 +190,57 @@ async function gradeCard(success) {
         });
 
         if (!response.ok) {
+            // Put card back if save failed
+            cardQueue.unshift(cardIndex);
             alert('Failed to save grade. Please try again.');
             return;
         }
 
-        // Track result client-side (more reliable than server sessions)
+        // Track result client-side for final summary
+        // For students: Every attempt is logged for the summary page
         studyResults.push({
             card_id: card.id,
             question: card.question,
             success: success
         });
 
-        // Move to next card
-        currentIndex++;
+        // ============================================================
+        // SPACED REPETITION LOGIC
+        // ============================================================
+        // For students: This is where the magic happens!
+        // - "Got it!" = mark as mastered (won't see again this session)
+        // - "Needs Practice" = re-queue at the END (will see again later)
+        // ============================================================
+        if (success) {
+            // Card mastered! Add to mastered set
+            // For students: Set.add() is idempotent - adding twice is fine
+            masteredCards.add(card.id);
+            console.log(`Card "${card.question.substring(0, 30)}..." mastered! (${masteredCards.size}/${totalCards})`);
+        } else {
+            // Needs practice - re-queue at the END of the queue
+            // For students: push() adds to the end of the array
+            // This card will appear again after all other pending cards
+            cardQueue.push(cardIndex);
+            console.log(`Card "${card.question.substring(0, 30)}..." re-queued. Queue length: ${cardQueue.length}`);
+        }
 
-        // Check if we've completed all cards
-        if (currentIndex >= totalCards) {
+        // Check if session is complete (queue is empty = all cards mastered)
+        // For students: When queue is empty, every card has been answered "Got it!"
+        if (cardQueue.length === 0) {
+            // Calculate total attempts for summary
+            const totalAttempts = Object.values(cardAttempts).reduce((sum, count) => sum + count, 0);
+
             // Submit all results and redirect to summary page
-            // For students: We POST all results at once, then redirect
+            // For students: We POST all results at once, including attempt count
             const summaryResponse = await fetch(`/study/${deckId}/summary`, {
                 method: 'POST',
                 credentials: 'same-origin',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ results: studyResults })
+                body: JSON.stringify({
+                    results: studyResults,
+                    total_attempts: totalAttempts,
+                    cards_mastered: totalCards
+                })
             });
 
             if (summaryResponse.ok) {
@@ -177,11 +250,13 @@ async function gradeCard(success) {
                 alert('Failed to save session results.');
             }
         } else {
-            // Display next card
+            // Display next card from the queue
             displayCard();
         }
 
     } catch (error) {
+        // Put card back if there was an error
+        cardQueue.unshift(cardIndex);
         alert('Error saving grade: ' + error.message);
     }
 }
