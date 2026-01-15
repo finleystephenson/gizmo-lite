@@ -40,6 +40,12 @@ class Config:
     # For development, we generate a random one each time (not persistent)
     SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_hex(32))
 
+    # Session cookie configuration
+    # For students: These settings ensure the session cookie works properly
+    SESSION_COOKIE_SAMESITE = 'Lax'  # Allow session with same-site requests
+    SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+    SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access for security
+
     # DATABASE_PATH: Location of the SQLite database file
     # Defaults to 'flashcards.db' in the project root
     DATABASE_PATH = os.getenv('DATABASE_PATH', str(project_root / 'flashcards.db'))

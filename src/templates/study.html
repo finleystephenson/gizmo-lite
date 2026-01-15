@@ -80,6 +80,10 @@ const deckId = {{ deck.id }};
 // This avoids page reloads between cards for a smoother experience
 let currentIndex = 0;
 
+// Track study results client-side (more reliable than server sessions)
+// For students: We store results in JavaScript and send them all at the end
+const studyResults = [];
+
 // Initialize the first card on page load
 // For students: This function runs when the page loads
 // It displays the first flashcard's question
@@ -122,17 +126,17 @@ function revealAnswer() {
 // Grade the current card and move to next
 // For students: This function does three things:
 // 1. Sends the grade to the server (POST to /study/{deck_id}/grade)
-// 2. Increments the card index to move to the next card
+// 2. Tracks the result client-side in studyResults array
 // 3. Either displays the next card or redirects to summary if done
 async function gradeCard(success) {
     const card = cards[currentIndex];
 
     try {
-        // Send grade to server
+        // Send grade to server to update database statistics
         // For students: fetch() makes an AJAX request without page reload
-        // We send card_id and success (true/false) as JSON
         const response = await fetch(`/study/${deckId}/grade`, {
             method: 'POST',
+            credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 card_id: card.id,
@@ -145,14 +149,33 @@ async function gradeCard(success) {
             return;
         }
 
+        // Track result client-side (more reliable than server sessions)
+        studyResults.push({
+            card_id: card.id,
+            question: card.question,
+            success: success
+        });
+
         // Move to next card
         currentIndex++;
 
         // Check if we've completed all cards
         if (currentIndex >= totalCards) {
-            // Redirect to summary page
-            // For students: The summary page will show session statistics
-            window.location.href = `/study/${deckId}/summary`;
+            // Submit all results and redirect to summary page
+            // For students: We POST all results at once, then redirect
+            const summaryResponse = await fetch(`/study/${deckId}/summary`, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ results: studyResults })
+            });
+
+            if (summaryResponse.ok) {
+                // Redirect to the summary page (GET request to display it)
+                window.location.href = `/study/${deckId}/summary`;
+            } else {
+                alert('Failed to save session results.');
+            }
         } else {
             // Display next card
             displayCard();

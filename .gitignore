@@ -26,3 +26,22 @@ __pycache__/
 .idea/
 *.swp
 *.swo
+
+# Sensitive Data
+.env
+
+# Python Virtual Environment
+.venv/
+venv/
+env/
+
+# Python Cache
+__pycache__/
+*.pyc
+
+# Database (Don't push your actual database data)
+*.db
+*.sqlite3
+
+# OS stuff
+.DS_Store

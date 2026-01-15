@@ -154,8 +154,10 @@ def study(deck_id):
     # Initialize session state for tracking this study session
     # For students: Flask session is a secure cookie that persists across requests
     # We store the deck_id to validate grade requests and track which cards were studied
-    session['studying_deck_id'] = deck_id
-    session['cards_studied'] = []  # Will store results: [{'card_id': 1, 'success': True}, ...]
+    # Only initialize cards_studied if starting a NEW session (not resuming existing one)
+    if session.get('studying_deck_id') != deck_id:
+        session['studying_deck_id'] = deck_id
+        session['cards_studied'] = []  # Will store results: [{'card_id': 1, 'success': True}, ...]
 
     # Render study template with deck and flashcards data
     # For students: The template receives three variables:
@@ -219,6 +221,12 @@ def grade_card(deck_id):
             'card_id': card_id,
             'success': success
         })
+        # IMPORTANT: Tell Flask the session was modified (needed for mutable objects like lists)
+        session.modified = True
+
+        # DEBUG
+        import sys
+        print(f"DEBUG GRADE: Added card {card_id}, success={success}. Total cards studied: {len(session['cards_studied'])}", file=sys.stderr, flush=True)
 
         # Return success response
         return jsonify({'success': True}), 200
@@ -229,64 +237,63 @@ def grade_card(deck_id):
         return jsonify({'error': str(e)}), 500
 
 
-@main.route('/study/<int:deck_id>/summary')
+@main.route('/study/<int:deck_id>/summary', methods=['GET', 'POST'])
 def study_summary(deck_id):
     """
     Display session summary with performance statistics and cards needing practice.
 
-    For students: This route shows the results of a completed study session.
-    It calculates statistics from the session data, displays performance metrics,
-    and cleans up the session state to prevent data leaks between sessions.
-    """
-    # Validate deck_id matches the session
-    # For students: Security check - ensure the deck in the URL matches the session
-    # This prevents users from viewing summaries for decks they didn't just study
-    if session.get('studying_deck_id') != deck_id:
-        # No active study session for this deck - redirect to decks page
-        return redirect(url_for('main.decks'))
+    For students: This route handles two cases:
+    - POST: Receives study results from JavaScript and stores them in session
+    - GET: Displays the summary page with statistics
 
+    The client-side JavaScript tracks all results and POSTs them at session end,
+    which is more reliable than trying to maintain session state across many AJAX calls.
+    """
     # Load deck from database
     deck = Deck.get_by_id(deck_id)
     if not deck:
         return "Deck not found", 404
 
-    # Get session results
-    # For students: cards_studied is a list of dicts: [{'card_id': 1, 'success': True}, ...]
-    cards_studied = session.get('cards_studied', [])
+    # Handle POST - receiving results from JavaScript
+    if request.method == 'POST':
+        data = request.get_json()
+        if data and 'results' in data:
+            # Store results in session for the subsequent GET request
+            session['summary_results'] = data['results']
+            session['summary_deck_id'] = deck_id
+            session.modified = True
+            return jsonify({'success': True}), 200
+        return jsonify({'error': 'No results provided'}), 400
 
-    # Validate we have session data
-    if not cards_studied:
-        # No cards studied in this session - redirect back to study page
+    # Handle GET - display summary page
+    # Check if we have results from the POST
+    cards_studied = session.get('summary_results', [])
+    stored_deck_id = session.get('summary_deck_id')
+
+    # Validate we have results for this deck
+    if not cards_studied or stored_deck_id != deck_id:
+        # No results - redirect back to study page
         return redirect(url_for('main.study', deck_id=deck_id))
 
     # Calculate statistics
     # For students: We analyze the session data to compute performance metrics
     total_cards = len(cards_studied)
-    success_count = sum(1 for card in cards_studied if card['success'])
+    success_count = sum(1 for card in cards_studied if card.get('success'))
     needs_practice_count = total_cards - success_count
     success_rate = round((success_count / total_cards) * 100, 1) if total_cards > 0 else 0
 
-    # Get cards needing practice
-    # For students: We extract the card_ids where success=False, then load those flashcards
-    needs_practice_ids = [card['card_id'] for card in cards_studied if not card['success']]
-    practice_questions = []
-
-    for card_id in needs_practice_ids:
-        # Load full flashcard data for each card that needs practice
-        flashcard = Flashcard.get_by_id(card_id)
-        if flashcard:
-            # Extract just the question text for display
-            practice_questions.append(flashcard['question'])
+    # Get cards needing practice - use question text from JavaScript results
+    # For students: The JavaScript already sent us the question text, so we don't need to query DB
+    practice_questions = [card.get('question', '') for card in cards_studied if not card.get('success')]
 
     # Clear session study data
     # For students: Important cleanup - we remove the session data after displaying it
-    # This prevents the summary from being shown again and prevents data contamination
-    # between different study sessions
+    session.pop('summary_results', None)
+    session.pop('summary_deck_id', None)
     session.pop('studying_deck_id', None)
     session.pop('cards_studied', None)
 
     # Render summary template with all the calculated data
-    # For students: The template receives all variables needed to display the summary
     return render_template(
         'summary.html',
         deck=deck,
