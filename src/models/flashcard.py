@@ -129,6 +129,51 @@ class Flashcard:
         return dict(row) if row else None
 
     @staticmethod
+    def update(flashcard_id, question=None, answer=None):
+        """
+        Update flashcard question and/or answer.
+
+        Args:
+            flashcard_id (int): Flashcard ID to update
+            question (str, optional): New question text
+            answer (str, optional): New answer text
+
+        Returns:
+            dict: Updated flashcard data or None if not found
+        """
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Build dynamic UPDATE query based on provided fields
+        updates = []
+        params = []
+
+        if question is not None:
+            updates.append('question = ?')
+            params.append(question)
+
+        if answer is not None:
+            updates.append('answer = ?')
+            params.append(answer)
+
+        if not updates:
+            conn.close()
+            return None
+
+        params.append(flashcard_id)
+        query = f"UPDATE flashcards SET {', '.join(updates)} WHERE id = ?"
+
+        cursor.execute(query, params)
+        conn.commit()
+
+        # Return updated flashcard
+        cursor.execute('SELECT * FROM flashcards WHERE id = ?', (flashcard_id,))
+        row = cursor.fetchone()
+        conn.close()
+
+        return dict(row) if row else None
+
+    @staticmethod
     def delete(flashcard_id):
         """
         Delete a flashcard by ID.
