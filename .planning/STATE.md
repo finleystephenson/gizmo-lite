@@ -6,12 +6,12 @@
 
 ## Current Status
 
-**Phase:** 4 of 7 (Study Mode Interface)
-**Plan:** 3 of 3 in current phase
+**Phase:** 5 of 7 (Spaced Repetition Logic)
+**Plan:** 1 of 1 in current phase
 **Status:** Complete
-**Last activity:** 2026-01-15 - Completed 04-03-PLAN.md (Study Session Summary)
+**Last activity:** 2026-01-15 - Completed 05-01-PLAN.md (Spaced Repetition Re-Queue System)
 
-Progress: ████████████████░ 62% (4/7 phases, 11/13 plans)
+Progress: █████████████████░ 71% (5/7 phases, 12/13 plans)
 
 ## Roadmap Progress
 
@@ -19,16 +19,25 @@ Progress: ████████████████░ 62% (4/7 phases, 1
 - [x] **Phase 2:** AI Integration (2/2 plans complete)
 - [x] **Phase 3:** Card Generation Interface (3/3 plans complete) ✅
 - [x] **Phase 4:** Study Mode Interface (3/3 plans complete) ✅
-- [ ] **Phase 5:** Spaced Repetition Logic
+- [x] **Phase 5:** Spaced Repetition Logic (1/1 plans complete) ✅
 - [ ] **Phase 6:** Deck Management & Statistics
 - [ ] **Phase 7:** Export/Import & Polish
 
-**Total:** 4/7 phases complete, 11/13 plans complete
+**Total:** 5/7 phases complete, 12/13 plans complete
 
 ## Recent Activity
 
 **2026-01-15:**
-- **Phase 4 In Progress:** Study Mode Interface (2/3 plans)
+- **Phase 5 Complete:** Spaced Repetition Logic (1/1 plans)
+  - Completed 05-01: Spaced Repetition Re-Queue System
+    - Implemented queue-based card management in study.html
+    - Cards marked "Needs Practice" re-queue at end of session
+    - Session only ends when ALL cards mastered at least once
+    - Attempt tracking with cardAttempts object
+    - Summary displays total attempts, re-queue count, per-card breakdown
+    - Human verification checkpoint APPROVED
+    - Verified: Card 49 re-queued 4 times, 16 attempts for 10 cards
+- **Phase 4 Complete:** Study Mode Interface (3/3 plans)
   - Completed 04-02: Study Mode Interface
     - Created study.html with interactive flashcard reveal/grade UI
     - Implemented /study/{deck_id} route loading flashcards into session
@@ -158,6 +167,9 @@ Progress: ████████████████░ 62% (4/7 phases, 1
 | Flask session for study state | Validates grade endpoint matches active session for security | 2026-01-15 |
 | Two-button grading system | Simple "Got it!" / "Needs Practice" for self-assessment | 2026-01-15 |
 | Question/answer reveal pattern | Active recall learning - think before revealing answer | 2026-01-15 |
+| Queue-based card management | Dynamic reordering for spaced repetition within sessions | 2026-01-15 |
+| Client-side attempt tracking | Simpler than per-grade API calls, passed to summary via query param | 2026-01-15 |
+| masteredCards Set | Ensures each card gets "Got it" exactly once before session ends | 2026-01-15 |
 
 ## Active Context
 
@@ -193,8 +205,9 @@ Progress: ████████████████░ 62% (4/7 phases, 1
 - Homepage template with flashcard generation form (src/templates/index.html)
 - Blueprint pattern for routes (src/routes/main.py registered in app.py)
 - Form configured to POST to /generate endpoint (will be created in 03-02)
-- Git repo with 31+ commits (foundation + database + config + planning + AI service + templates + routes + generation + preview + editor + deck selection + study mode)
-- Full UI stack working: homepage form → AI generation → card preview → modal editor → deck selection → study mode
+- Git repo with 33+ commits (foundation + database + config + planning + AI service + templates + routes + generation + preview + editor + deck selection + study mode + spaced repetition)
+- Full UI stack working: homepage form → AI generation → card preview → modal editor → deck selection → study mode → spaced repetition
+- Spaced repetition within sessions: "Needs Practice" cards re-queue, session ends only when all mastered
 - Deck selection page showing all decks with card counts
 - My Decks navigation link in header visible on all pages
 - Interactive study mode with reveal/grade flow and statistics tracking
@@ -202,13 +215,12 @@ Progress: ████████████████░ 62% (4/7 phases, 1
 
 ## Next Steps
 
-1. **Plan 04-02 Complete ✅** - Study Mode Interface functional
-2. **Next Plan:** 04-03 - Study Session Summary
-   - Session end summary page showing performance statistics
-   - Display cards studied, success rate, time spent
-   - Return to Decks button for navigation
-   - Celebrate success with encouraging messages
-3. **Recommended command:** `/gsd:execute-plan .planning/phases/04-study-mode-ui/04-03-PLAN.md` to implement summary page
+1. **Phase 5 Complete ✅** - Spaced Repetition Logic functional
+2. **Next Phase:** 6 - Deck Management & Statistics
+   - Deck editing and deletion functionality
+   - Statistics dashboard with study history
+   - Performance tracking across sessions
+3. **Recommended command:** `/gsd:plan-phase 6` to plan Deck Management & Statistics phase
 
 ---
 
