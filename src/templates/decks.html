@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Your Decks - AI Flashcard Generator{% endblock %}
+
+{% block content %}
+<!-- Deck selection page - choose which deck to study -->
+<!-- For students: This page shows all saved decks with card counts -->
+<!-- Users click "Study Now" to enter study mode for a specific deck -->
+<div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6">Your Decks</h2>
+
+    {% if decks %}
+        <!-- Grid of deck cards -->
+        <!-- For students: Each deck displays as a card with metadata -->
+        <div class="grid gap-4">
+            {% for deck in decks %}
+            <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <!-- Deck name (bold heading) -->
+                        <h3 class="font-bold text-xl mb-2">{{ deck.name }}</h3>
+
+                        <!-- Card count and created date -->
+                        <div class="text-gray-600 mb-3">
+                            <span class="font-semibold">{{ deck.card_count }}</span> flashcard{% if deck.card_count != 1 %}s{% endif %}
+                            <span class="mx-2">•</span>
+                            <span>Created {{ deck.created_date }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Study Now button -->
+                    <!-- For students: This links to /study/{deck_id} (will be created in next plan) -->
+                    <a href="/study/{{ deck.id }}"
+                       class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors font-bold">
+                        Study Now
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <!-- Empty state - shown when no decks exist -->
+        <!-- For students: This encourages users to create their first deck -->
+        <div class="bg-white p-12 rounded-lg shadow text-center">
+            <p class="text-gray-600 text-lg mb-4">No decks yet. Generate your first deck!</p>
+            <a href="/"
+               class="inline-block bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-colors font-bold">
+                Create Deck
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
