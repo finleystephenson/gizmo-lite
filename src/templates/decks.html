@@ -28,12 +28,26 @@
                         </div>
                     </div>
 
-                    <!-- Study Now button -->
-                    <!-- For students: This links to /study/{deck_id} (will be created in next plan) -->
-                    <a href="/study/{{ deck.id }}"
-                       class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors font-bold">
-                        Study Now
-                    </a>
+                    <!-- Action buttons: Study Now and Delete -->
+                    <!-- For students: Flex container keeps buttons aligned side by side -->
+                    <div class="flex gap-2">
+                        <!-- Study Now button -->
+                        <!-- For students: This links to /study/{deck_id} to start studying -->
+                        <a href="/study/{{ deck.id }}"
+                           class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors font-bold">
+                            Study Now
+                        </a>
+
+                        <!-- Delete button with confirmation -->
+                        <!-- For students: onclick triggers JavaScript confirm() dialog before form submission -->
+                        <form action="/deck/{{ deck.id }}/delete" method="POST" class="inline"
+                              onsubmit="return confirm('Delete \'{{ deck.name }}\' and all its cards? This cannot be undone.');">
+                            <button type="submit"
+                                    class="bg-red-600 text-white py-2 px-6 rounded-md hover:bg-red-700 transition-colors font-bold">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
             {% endfor %}

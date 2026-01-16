@@ -384,3 +384,25 @@ def edit_card(card_id):
         return jsonify({'success': True}), 200
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@main.route('/deck/<int:deck_id>/delete', methods=['POST'])
+def delete_deck(deck_id):
+    """
+    Delete a deck and all its flashcards.
+
+    For students: This endpoint handles POST requests to delete a deck.
+    The Deck.delete() method uses CASCADE deletion, so all flashcards
+    in the deck are automatically deleted when the deck is removed.
+    After deletion, the user is redirected back to the decks list.
+    """
+    # Attempt to delete the deck
+    # For students: Deck.delete() returns True if deleted, False if not found
+    deleted = Deck.delete(deck_id)
+
+    if not deleted:
+        return "Deck not found", 404
+
+    # Redirect back to decks page after successful deletion
+    # For students: url_for() generates the URL for the named route
+    return redirect(url_for('main.decks'))
