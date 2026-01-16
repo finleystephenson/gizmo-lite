@@ -111,3 +111,80 @@ class Deck:
         conn.close()
 
         return deleted
+
+    @staticmethod
+    def get_all_with_stats():
+        """
+        Get all decks with their statistics.
+
+        For students: This method combines deck data with flashcard statistics.
+        It calls Flashcard.get_deck_stats() for each deck to get aggregated stats.
+
+        Returns:
+            list[dict]: List of decks, each with additional stats fields
+        """
+        from .flashcard import Flashcard
+
+        decks = Deck.get_all()
+        decks_with_stats = []
+
+        for deck in decks:
+            stats = Flashcard.get_deck_stats(deck['id'])
+            decks_with_stats.append({
+                **deck,
+                **stats
+            })
+
+        return decks_with_stats
+
+    @staticmethod
+    def get_overall_stats():
+        """
+        Get overall statistics across all decks.
+
+        For students: This method aggregates statistics across the entire flashcard
+        collection, useful for showing total progress on a statistics dashboard.
+
+        Returns:
+            dict: {
+                'total_decks': int,
+                'total_cards': int,
+                'total_studied': int,
+                'total_correct': int,
+                'success_rate': float,
+                'last_studied': float or None
+            }
+        """
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Count total decks
+        cursor.execute('SELECT COUNT(*) as count FROM decks')
+        total_decks = cursor.fetchone()['count']
+
+        # Get aggregate flashcard stats
+        cursor.execute('''
+            SELECT
+                COUNT(*) as total_cards,
+                COALESCE(SUM(studied_count), 0) as total_studied,
+                COALESCE(SUM(success_count), 0) as total_correct,
+                MAX(last_studied) as last_studied
+            FROM flashcards
+        ''')
+
+        row = cursor.fetchone()
+        conn.close()
+
+        total_studied = row['total_studied']
+        total_correct = row['total_correct']
+        # Calculate success rate as percentage (avoid division by zero)
+        success_rate = (total_correct / total_studied * 100) if total_studied > 0 else 0
+
+        return {
+            'total_decks': total_decks,
+            'total_cards': row['total_cards'],
+            'total_studied': total_studied,
+            'total_correct': total_correct,
+            'success_rate': round(success_rate, 1),
+            'last_studied': row['last_studied']
+        }

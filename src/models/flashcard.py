@@ -214,3 +214,65 @@ class Flashcard:
         conn.close()
 
         return deleted
+
+    @staticmethod
+    def get_deck_stats(deck_id):
+        """
+        Get aggregated statistics for a deck.
+
+        For students: This method uses SQL aggregate functions (COUNT, SUM, MAX, AVG)
+        to calculate statistics across all flashcards in a deck in a single query.
+
+        Args:
+            deck_id (int): Deck ID to get statistics for
+
+        Returns:
+            dict: {
+                'total_cards': int,
+                'total_studied': int (sum of studied_count),
+                'total_correct': int (sum of success_count),
+                'success_rate': float (0-100 percentage),
+                'last_studied': float or None (most recent last_studied timestamp),
+                'avg_streak': float (average streak across cards)
+            }
+        """
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            SELECT
+                COUNT(*) as total_cards,
+                COALESCE(SUM(studied_count), 0) as total_studied,
+                COALESCE(SUM(success_count), 0) as total_correct,
+                MAX(last_studied) as last_studied,
+                COALESCE(AVG(streak), 0) as avg_streak
+            FROM flashcards
+            WHERE deck_id = ?
+        ''', (deck_id,))
+
+        row = cursor.fetchone()
+        conn.close()
+
+        if row:
+            total_studied = row['total_studied']
+            total_correct = row['total_correct']
+            # Calculate success rate as percentage (avoid division by zero)
+            success_rate = (total_correct / total_studied * 100) if total_studied > 0 else 0
+
+            return {
+                'total_cards': row['total_cards'],
+                'total_studied': total_studied,
+                'total_correct': total_correct,
+                'success_rate': round(success_rate, 1),
+                'last_studied': row['last_studied'],
+                'avg_streak': round(row['avg_streak'], 1)
+            }
+
+        return {
+            'total_cards': 0,
+            'total_studied': 0,
+            'total_correct': 0,
+            'success_rate': 0,
+            'last_studied': None,
+            'avg_streak': 0
+        }

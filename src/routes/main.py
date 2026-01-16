@@ -96,36 +96,38 @@ def decks():
     Display all saved decks for user to select which one to study.
 
     For students: This route provides the entry point to study mode.
-    It queries all decks and calculates flashcard counts for each deck.
+    It queries all decks with their study statistics.
     """
-    # Get all decks from database
-    # For students: Deck.get_all() returns a list of deck dictionaries
-    decks = Deck.get_all()
+    from datetime import datetime
 
-    # Add card count to each deck
-    # For students: We loop through each deck and count its flashcards
-    # The card_count is added to the deck dictionary for display
-    decks_with_counts = []
+    # Get all decks with their statistics
+    # For students: Deck.get_all_with_stats() returns deck data + aggregated flashcard stats
+    decks = Deck.get_all_with_stats()
+
+    # Format dates and add card_count alias for each deck
+    # For students: We format timestamps as readable dates and ensure backward compatibility
+    decks_with_dates = []
     for deck in decks:
-        # Get all flashcards for this deck
-        flashcards = Flashcard.get_by_deck(deck['id'])
-        card_count = len(flashcards)
-
         # Format the created_at timestamp as a human-readable date
-        # For students: Unix timestamp (seconds since 1970) → readable string
-        from datetime import datetime
         created_date = datetime.fromtimestamp(deck['created_at']).strftime('%b %d, %Y')
 
-        # Add count and formatted date to deck data
-        decks_with_counts.append({
+        # Format last_studied timestamp if available
+        if deck.get('last_studied'):
+            last_studied_date = datetime.fromtimestamp(deck['last_studied']).strftime('%b %d, %Y')
+        else:
+            last_studied_date = None
+
+        # Add formatted dates and card_count alias (total_cards from stats)
+        decks_with_dates.append({
             **deck,
-            'card_count': card_count,
-            'created_date': created_date
+            'card_count': deck['total_cards'],
+            'created_date': created_date,
+            'last_studied_date': last_studied_date
         })
 
     # Render decks template with the enhanced deck data
-    # For students: The template receives decks with card_count and created_date fields
-    return render_template('decks.html', decks=decks_with_counts)
+    # For students: The template receives decks with stats and formatted dates
+    return render_template('decks.html', decks=decks_with_dates)
 
 
 @main.route('/study/<int:deck_id>')
@@ -427,3 +429,43 @@ def delete_card(card_id):
     # Return JSON success response
     # For students: The JavaScript will use this to remove the card from the DOM
     return jsonify({'success': True}), 200
+
+
+@main.route('/stats')
+def statistics():
+    """
+    Display statistics dashboard showing study progress across all decks.
+
+    For students: This route aggregates statistics from all flashcards
+    to show overall progress and per-deck breakdowns. It uses helper
+    methods in the Deck and Flashcard models for data aggregation.
+    """
+    from datetime import datetime
+
+    # Get overall statistics across all decks
+    # For students: Deck.get_overall_stats() aggregates data from all flashcards
+    overall = Deck.get_overall_stats()
+
+    # Format the last studied timestamp as human-readable date
+    if overall['last_studied']:
+        overall['last_studied_date'] = datetime.fromtimestamp(
+            overall['last_studied']
+        ).strftime('%b %d, %Y at %I:%M %p')
+    else:
+        overall['last_studied_date'] = 'Never'
+
+    # Get all decks with their individual statistics
+    # For students: Deck.get_all_with_stats() returns deck data + flashcard stats
+    decks = Deck.get_all_with_stats()
+
+    # Format dates for each deck
+    for deck in decks:
+        if deck['last_studied']:
+            deck['last_studied_date'] = datetime.fromtimestamp(
+                deck['last_studied']
+            ).strftime('%b %d, %Y')
+        else:
+            deck['last_studied_date'] = 'Never'
+
+    # Render statistics template
+    return render_template('stats.html', overall=overall, decks=decks)

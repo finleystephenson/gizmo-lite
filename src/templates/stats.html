@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Statistics - AI Flashcard Generator{% endblock %}
+
+{% block content %}
+<!-- Statistics dashboard - track study progress across all decks -->
+<!-- For students: This page aggregates data from all flashcards to show progress -->
+<div class="max-w-4xl mx-auto">
+    <h2 class="text-3xl font-bold mb-6">Statistics Dashboard</h2>
+
+    {% if overall.total_decks > 0 %}
+        <!-- Overall Summary Card -->
+        <!-- For students: Shows lifetime totals across all study sessions -->
+        <div class="bg-white p-6 rounded-lg shadow mb-6">
+            <h3 class="font-bold text-xl mb-4">Overall Progress</h3>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <!-- Total Decks -->
+                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                    <div class="text-3xl font-bold text-blue-600">{{ overall.total_decks }}</div>
+                    <div class="text-gray-600">Deck{% if overall.total_decks != 1 %}s{% endif %}</div>
+                </div>
+
+                <!-- Total Cards -->
+                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                    <div class="text-3xl font-bold text-purple-600">{{ overall.total_cards }}</div>
+                    <div class="text-gray-600">Flashcard{% if overall.total_cards != 1 %}s{% endif %}</div>
+                </div>
+
+                <!-- Times Studied -->
+                <div class="text-center p-4 bg-indigo-50 rounded-lg">
+                    <div class="text-3xl font-bold text-indigo-600">{{ overall.total_studied }}</div>
+                    <div class="text-gray-600">Times Studied</div>
+                </div>
+
+                <!-- Success Rate -->
+                <div class="text-center p-4 rounded-lg
+                    {% if overall.success_rate >= 70 %}bg-green-50{% elif overall.success_rate >= 50 %}bg-yellow-50{% else %}bg-red-50{% endif %}">
+                    <div class="text-3xl font-bold
+                        {% if overall.success_rate >= 70 %}text-green-600{% elif overall.success_rate >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                        {{ overall.success_rate }}%
+                    </div>
+                    <div class="text-gray-600">Success Rate</div>
+                </div>
+            </div>
+
+            <!-- Last Study Session -->
+            <div class="mt-4 text-center text-gray-600">
+                Last studied: <span class="font-semibold">{{ overall.last_studied_date }}</span>
+            </div>
+        </div>
+
+        <!-- Per-Deck Statistics Table -->
+        <!-- For students: Shows detailed breakdown for each deck -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <h3 class="font-bold text-xl p-6 pb-4">Deck Statistics</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deck Name</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Cards</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Times Studied</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Success Rate</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avg Streak</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Last Studied</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for deck in decks %}
+                        <tr class="hover:bg-gray-50">
+                            <!-- Deck Name -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="font-medium text-gray-900">{{ deck.name }}</div>
+                            </td>
+
+                            <!-- Card Count -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-gray-600">
+                                {{ deck.total_cards }}
+                            </td>
+
+                            <!-- Times Studied -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-gray-600">
+                                {{ deck.total_studied }}
+                            </td>
+
+                            <!-- Success Rate (color-coded) -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                {% if deck.total_studied > 0 %}
+                                    <span class="px-2 py-1 rounded-full text-sm font-semibold
+                                        {% if deck.success_rate >= 70 %}bg-green-100 text-green-800
+                                        {% elif deck.success_rate >= 50 %}bg-yellow-100 text-yellow-800
+                                        {% else %}bg-red-100 text-red-800{% endif %}">
+                                        {{ deck.success_rate }}%
+                                    </span>
+                                {% else %}
+                                    <span class="text-gray-400">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Average Streak -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-gray-600">
+                                {% if deck.total_studied > 0 %}
+                                    {{ deck.avg_streak }}
+                                {% else %}
+                                    <span class="text-gray-400">—</span>
+                                {% endif %}
+                            </td>
+
+                            <!-- Last Studied -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-gray-600">
+                                {{ deck.last_studied_date }}
+                            </td>
+
+                            <!-- Study Link -->
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <a href="/study/{{ deck.id }}"
+                                   class="text-blue-600 hover:text-blue-800 font-medium">
+                                    Study
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Empty State -->
+        <!-- For students: Shown when no decks exist yet -->
+        <div class="bg-white p-12 rounded-lg shadow text-center">
+            <p class="text-gray-600 text-lg mb-4">No statistics yet. Create some decks and start studying!</p>
+            <a href="/"
+               class="inline-block bg-blue-600 text-white py-3 px-6 rounded-md hover:bg-blue-700 transition-colors font-bold">
+                Create Deck
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

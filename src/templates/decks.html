@@ -21,11 +21,29 @@
                         <h3 class="font-bold text-xl mb-2">{{ deck.name }}</h3>
 
                         <!-- Card count and created date -->
-                        <div class="text-gray-600 mb-3">
+                        <div class="text-gray-600 mb-2">
                             <span class="font-semibold">{{ deck.card_count }}</span> flashcard{% if deck.card_count != 1 %}s{% endif %}
                             <span class="mx-2">•</span>
                             <span>Created {{ deck.created_date }}</span>
                         </div>
+
+                        <!-- Quick study stats -->
+                        <!-- For students: Shows study progress for each deck -->
+                        {% if deck.total_studied > 0 %}
+                            <div class="text-sm text-gray-500 mb-3">
+                                <span>Studied {{ deck.total_studied }} time{% if deck.total_studied != 1 %}s{% endif %}</span>
+                                <span class="mx-2">•</span>
+                                <span class="{% if deck.success_rate >= 70 %}text-green-600{% elif deck.success_rate >= 50 %}text-yellow-600{% else %}text-red-600{% endif %} font-medium">
+                                    {{ deck.success_rate }}% success
+                                </span>
+                                <span class="mx-2">•</span>
+                                <span>Last: {{ deck.last_studied_date }}</span>
+                            </div>
+                        {% else %}
+                            <div class="text-sm text-gray-400 mb-3 italic">
+                                Not studied yet
+                            </div>
+                        {% endif %}
                     </div>
 
                     <!-- Action buttons: Study Now and Delete -->
