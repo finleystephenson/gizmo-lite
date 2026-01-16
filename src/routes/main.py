@@ -406,3 +406,24 @@ def delete_deck(deck_id):
     # Redirect back to decks page after successful deletion
     # For students: url_for() generates the URL for the named route
     return redirect(url_for('main.decks'))
+
+
+@main.route('/card/<int:card_id>/delete', methods=['POST'])
+def delete_card(card_id):
+    """
+    Delete an individual flashcard.
+
+    For students: This endpoint handles AJAX requests from JavaScript.
+    It returns JSON to allow client-side UI updates without page reload.
+    The Flashcard.delete() method removes the card from the database.
+    """
+    # Attempt to delete the flashcard
+    # For students: Flashcard.delete() returns True if deleted, False if not found
+    deleted = Flashcard.delete(card_id)
+
+    if not deleted:
+        return jsonify({'error': 'Flashcard not found'}), 404
+
+    # Return JSON success response
+    # For students: The JavaScript will use this to remove the card from the DOM
+    return jsonify({'success': True}), 200

@@ -8,26 +8,35 @@
 <!-- Each card displays both question and answer for review before studying -->
 <div class="max-w-4xl mx-auto">
     <h2 class="text-3xl font-bold mb-2">{{ deck.name }}</h2>
-    <p class="text-gray-600 mb-6">{{ flashcards|length }} flashcards generated</p>
+    <p id="cardCountDisplay" class="text-gray-600 mb-6"><span id="cardCount">{{ flashcards|length }}</span> flashcard<span id="cardPlural">{% if flashcards|length != 1 %}s{% endif %}</span> generated</p>
 
     <!-- Grid of flashcards -->
     <!-- For students: Each card is numbered and displays question/answer -->
-    <!-- The "Edit" button will open a modal in Plan 03-03 -->
-    <div class="grid gap-4 mb-8">
+    <!-- The "Edit" button opens a modal, the "x" button deletes the card -->
+    <div id="flashcardsGrid" class="grid gap-4 mb-8">
         {% for card in flashcards %}
-        <div data-card-id="{{ card.id }}" class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+        <div data-card-id="{{ card.id }}" class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 relative">
             <div class="flex justify-between items-start">
                 <div class="flex-1">
                     <!-- Question (bold) -->
-                    <div class="question-text font-bold text-lg mb-2">{{ loop.index }}. {{ card.question }}</div>
+                    <div class="question-text font-bold text-lg mb-2"><span class="card-number">{{ loop.index }}</span>. {{ card.question }}</div>
                     <!-- Answer (gray text) -->
                     <div class="answer-text text-gray-700">{{ card.answer }}</div>
                 </div>
-                <!-- Edit button -->
-                <button onclick="editCard({{ card.id }})"
-                        class="ml-4 text-blue-600 hover:text-blue-800 font-semibold">
-                    Edit
-                </button>
+                <!-- Action buttons container -->
+                <div class="flex items-center gap-2 ml-4">
+                    <!-- Edit button -->
+                    <button onclick="editCard({{ card.id }})"
+                            class="text-blue-600 hover:text-blue-800 font-semibold">
+                        Edit
+                    </button>
+                    <!-- Delete button (red x) -->
+                    <button onclick="deleteCard({{ card.id }})"
+                            class="text-red-500 hover:text-red-700 font-bold text-xl leading-none"
+                            title="Delete this flashcard">
+                        &times;
+                    </button>
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -152,5 +161,57 @@ document.getElementById('editModal').addEventListener('click', function(e) {
         closeModal();
     }
 });
+
+// Delete a flashcard with confirmation
+async function deleteCard(cardId) {
+    // Show confirmation dialog
+    if (!confirm('Delete this flashcard?')) {
+        return;
+    }
+
+    try {
+        // Send delete request to server
+        const response = await fetch(`/card/${cardId}/delete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.ok) {
+            // Remove card from flashcardsData cache
+            delete flashcardsData[cardId];
+
+            // Remove card element from DOM
+            const cardDiv = document.querySelector(`[data-card-id="${cardId}"]`);
+            cardDiv.remove();
+
+            // Update card count display
+            updateCardCount();
+
+            // Renumber remaining cards
+            renumberCards();
+        } else {
+            const data = await response.json();
+            alert('Failed to delete card: ' + (data.error || 'Unknown error'));
+        }
+    } catch (error) {
+        alert('Error deleting card: ' + error.message);
+    }
+}
+
+// Update the card count display after deletion
+function updateCardCount() {
+    const remainingCards = document.querySelectorAll('#flashcardsGrid [data-card-id]').length;
+    document.getElementById('cardCount').textContent = remainingCards;
+    // Update plural (s) based on count
+    document.getElementById('cardPlural').textContent = remainingCards === 1 ? '' : 's';
+}
+
+// Renumber cards after deletion to maintain sequential numbering
+function renumberCards() {
+    const cardNumbers = document.querySelectorAll('#flashcardsGrid .card-number');
+    cardNumbers.forEach((span, index) => {
+        span.textContent = index + 1;
+    });
+}
 </script>
 {% endblock %}
