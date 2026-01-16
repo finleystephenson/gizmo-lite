@@ -21,7 +21,7 @@ def get_db():
     project_root = Path(__file__).parent.parent.parent
     db_path = project_root / 'flashcards.db'
 
-    conn = sqlite3.connect(str(db_path))
+    conn = sqlite3.connect(str(db_path), timeout=10.0)
     # Enable foreign key constraints
     conn.execute('PRAGMA foreign_keys = ON')
     # Return rows as dictionaries
