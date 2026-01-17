@@ -452,6 +452,66 @@ def export_deck(deck_id):
     )
 
 
+@main.route('/import', methods=['POST'])
+def import_deck():
+    """
+    Import a deck from an uploaded JSON file.
+
+    For students: This endpoint handles file uploads via multipart form data.
+    It parses the JSON file, validates the structure, creates the deck and cards,
+    and provides feedback via flash messages.
+
+    File uploads are accessed via request.files dictionary, not request.form.
+    """
+    import json
+
+    # Check if a file was uploaded
+    # For students: request.files contains uploaded files from the form
+    if 'deck_file' not in request.files:
+        flash('No file uploaded', 'error')
+        return redirect(url_for('main.decks'))
+
+    file = request.files['deck_file']
+
+    # Check if a file was actually selected
+    # For students: Empty filename means user submitted form without selecting a file
+    if file.filename == '':
+        flash('No file selected', 'error')
+        return redirect(url_for('main.decks'))
+
+    try:
+        # Read and parse the JSON file
+        # For students: file.read() gets the file contents as bytes
+        # decode('utf-8') converts bytes to string for JSON parsing
+        file_content = file.read().decode('utf-8')
+        data = json.loads(file_content)
+
+        # Import the deck using our model method
+        # For students: Deck.import_from_dict() validates and creates deck + cards
+        deck = Deck.import_from_dict(data)
+
+        # Count cards for the success message
+        card_count = len(data.get('cards', []))
+        flash(f"Successfully imported '{deck['name']}' with {card_count} card{'s' if card_count != 1 else ''}", 'success')
+
+    except json.JSONDecodeError as e:
+        # Handle invalid JSON
+        # For students: This catches malformed JSON files that can't be parsed
+        flash(f'Invalid JSON file: {str(e)}', 'error')
+
+    except ValueError as e:
+        # Handle validation errors from import_from_dict
+        # For students: ValueError is raised when data doesn't match expected structure
+        flash(f'Import failed: {str(e)}', 'error')
+
+    except Exception as e:
+        # Handle unexpected errors
+        # For students: Catch-all for any other errors during import
+        flash(f'Import failed: {str(e)}', 'error')
+
+    return redirect(url_for('main.decks'))
+
+
 @main.route('/card/<int:card_id>/delete', methods=['POST'])
 def delete_card(card_id):
     """

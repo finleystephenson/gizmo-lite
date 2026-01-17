@@ -234,3 +234,64 @@ class Deck:
             'created_at': created_at_iso,
             'cards': cards
         }
+
+    @staticmethod
+    def import_from_dict(data):
+        """
+        Import a deck from a dictionary (typically parsed from JSON).
+
+        For students: This method validates the imported data structure,
+        creates a new deck, and adds all the flashcards. It ensures data
+        integrity by validating required fields before database operations.
+
+        Args:
+            data (dict): Imported deck data with keys:
+                - 'name' (str, required): Deck name
+                - 'cards' (list, required): List of card dicts
+                  Each card must have 'question' and 'answer' (str)
+
+        Returns:
+            dict: Created deck data
+
+        Raises:
+            ValueError: If validation fails with descriptive message
+        """
+        from .flashcard import Flashcard
+
+        # Validate 'name' field
+        if 'name' not in data:
+            raise ValueError("Missing required field: 'name'")
+        if not isinstance(data['name'], str) or not data['name'].strip():
+            raise ValueError("Field 'name' must be a non-empty string")
+
+        # Validate 'cards' field
+        if 'cards' not in data:
+            raise ValueError("Missing required field: 'cards'")
+        if not isinstance(data['cards'], list):
+            raise ValueError("Field 'cards' must be a list")
+
+        # Validate each card has required fields
+        for i, card in enumerate(data['cards']):
+            if not isinstance(card, dict):
+                raise ValueError(f"Card {i + 1} must be an object with 'question' and 'answer'")
+            if 'question' not in card:
+                raise ValueError(f"Card {i + 1} is missing 'question' field")
+            if 'answer' not in card:
+                raise ValueError(f"Card {i + 1} is missing 'answer' field")
+            if not isinstance(card['question'], str) or not card['question'].strip():
+                raise ValueError(f"Card {i + 1} 'question' must be a non-empty string")
+            if not isinstance(card['answer'], str) or not card['answer'].strip():
+                raise ValueError(f"Card {i + 1} 'answer' must be a non-empty string")
+
+        # Create the deck
+        deck = Deck.create(data['name'].strip())
+
+        # Create flashcards for each card in the imported data
+        for card in data['cards']:
+            Flashcard.create(
+                deck_id=deck['id'],
+                question=card['question'].strip(),
+                answer=card['answer'].strip()
+            )
+
+        return deck
