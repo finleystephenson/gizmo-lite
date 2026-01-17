@@ -2,30 +2,40 @@
 
 **Project:** AI Flashcard Generator
 **Mode:** Interactive (standard depth)
-**Last Updated:** 2026-01-15
+**Last Updated:** 2026-01-17
 
 ## Current Status
 
-**Phase:** 5 of 7 (Spaced Repetition Logic)
-**Plan:** 1 of 1 in current phase
-**Status:** Complete
-**Last activity:** 2026-01-15 - Completed 05-01-PLAN.md (Spaced Repetition Re-Queue System)
+**Phase:** 7 of 7 (Export/Import & Polish)
+**Plan:** 1 of 2 in current phase
+**Status:** In progress
+**Last activity:** 2026-01-17 - Completed 07-01-PLAN.md (Export/Import Functionality)
 
-Progress: █████████████████░ 71% (5/7 phases, 12/13 plans)
+Progress: ███████████████████░ 93% (7/7 phases, 14/15 plans)
 
 ## Roadmap Progress
 
 - [x] **Phase 1:** Foundation & Database Setup (3/3 plans complete)
 - [x] **Phase 2:** AI Integration (2/2 plans complete)
-- [x] **Phase 3:** Card Generation Interface (3/3 plans complete) ✅
-- [x] **Phase 4:** Study Mode Interface (3/3 plans complete) ✅
-- [x] **Phase 5:** Spaced Repetition Logic (1/1 plans complete) ✅
-- [ ] **Phase 6:** Deck Management & Statistics
-- [ ] **Phase 7:** Export/Import & Polish
+- [x] **Phase 3:** Card Generation Interface (3/3 plans complete)
+- [x] **Phase 4:** Study Mode Interface (3/3 plans complete)
+- [x] **Phase 5:** Spaced Repetition Logic (1/1 plans complete)
+- [x] **Phase 6:** Deck Management & Statistics (2/2 plans complete)
+- [ ] **Phase 7:** Export/Import & Polish (1/2 plans complete)
 
-**Total:** 5/7 phases complete, 12/13 plans complete
+**Total:** 6/7 phases complete, 14/15 plans complete
 
 ## Recent Activity
+
+**2026-01-17:**
+- **Phase 7 Started:** Export/Import & Polish
+  - Completed 07-01: Export/Import Functionality
+    - Added Deck.export_to_dict() for JSON export
+    - Added Deck.import_from_dict() with validation
+    - Added /deck/<id>/export and /import routes
+    - Added Export button and Import form to decks.html
+    - Added flash message display to base.html
+    - Flash messages show success/error/info with colors
 
 **2026-01-15:**
 - **Phase 5 Complete:** Spaced Repetition Logic (1/1 plans)
@@ -170,6 +180,9 @@ Progress: █████████████████░ 71% (5/7 phases
 | Queue-based card management | Dynamic reordering for spaced repetition within sessions | 2026-01-15 |
 | Client-side attempt tracking | Simpler than per-grade API calls, passed to summary via query param | 2026-01-15 |
 | masteredCards Set | Ensures each card gets "Got it" exactly once before session ends | 2026-01-15 |
+| ISO timestamp in exports | Cross-platform portability for shared deck files | 2026-01-17 |
+| Content-only JSON export | Exclude IDs and stats, include only name and Q&A pairs | 2026-01-17 |
+| Flash messages with categories | success/error/info categories with color-coded styling | 2026-01-17 |
 
 ## Active Context
 
@@ -212,15 +225,17 @@ Progress: █████████████████░ 71% (5/7 phases
 - My Decks navigation link in header visible on all pages
 - Interactive study mode with reveal/grade flow and statistics tracking
 - Flask session management for study state validation
+- Deck export/import via JSON files
+- Flash message system for user feedback
 
 ## Next Steps
 
-1. **Phase 5 Complete ✅** - Spaced Repetition Logic functional
-2. **Next Phase:** 6 - Deck Management & Statistics
-   - Deck editing and deletion functionality
-   - Statistics dashboard with study history
-   - Performance tracking across sessions
-3. **Recommended command:** `/gsd:plan-phase 6` to plan Deck Management & Statistics phase
+1. **Phase 7 Plan 1 Complete** - Export/Import functionality working
+2. **Next:** 07-02-PLAN.md - UI Polish & Final Testing
+   - Mobile responsive design
+   - UI polish (Tailwind styling consistency)
+   - End-to-end testing
+3. **Recommended command:** `/gsd:execute-plan` to run 07-02-PLAN.md
 
 ---
 
