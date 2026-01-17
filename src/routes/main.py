@@ -7,7 +7,7 @@ For students: Routes are URL endpoints that your Flask app responds to.
 Each route function (called a "view") handles a specific URL pattern.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, jsonify, session
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, session, flash, Response
 from src.services.flashcard_generator import FlashcardGenerator
 from src.models.deck import Deck
 from src.models.flashcard import Flashcard
@@ -408,6 +408,48 @@ def delete_deck(deck_id):
     # Redirect back to decks page after successful deletion
     # For students: url_for() generates the URL for the named route
     return redirect(url_for('main.decks'))
+
+
+@main.route('/deck/<int:deck_id>/export')
+def export_deck(deck_id):
+    """
+    Export a deck as a downloadable JSON file.
+
+    For students: This endpoint creates a JSON file download containing the deck
+    name and all flashcard question-answer pairs. Users can share this file with
+    classmates who can then import it to create a copy of the deck.
+
+    The Content-Disposition header tells the browser to download the file
+    rather than display it, and specifies the suggested filename.
+    """
+    import json
+
+    # Get the deck data for export
+    # For students: Deck.export_to_dict() returns None if deck not found
+    deck_data = Deck.export_to_dict(deck_id)
+
+    if not deck_data:
+        flash('Deck not found', 'error')
+        return redirect(url_for('main.decks'))
+
+    # Create JSON string with nice formatting
+    # For students: indent=2 makes the JSON human-readable
+    json_content = json.dumps(deck_data, indent=2)
+
+    # Create a safe filename from the deck name
+    # For students: We replace spaces with underscores and keep it simple
+    safe_name = deck_data['name'].replace(' ', '_').replace('/', '_')
+    filename = f"{safe_name}_flashcards.json"
+
+    # Return the JSON as a downloadable file
+    # For students: Response() creates a custom HTTP response
+    # - mimetype: tells browser this is JSON data
+    # - Content-Disposition: tells browser to download as file with specified name
+    return Response(
+        json_content,
+        mimetype='application/json',
+        headers={'Content-Disposition': f'attachment; filename="{filename}"'}
+    )
 
 
 @main.route('/card/<int:card_id>/delete', methods=['POST'])

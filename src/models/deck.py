@@ -188,3 +188,49 @@ class Deck:
             'success_rate': round(success_rate, 1),
             'last_studied': row['last_studied']
         }
+
+    @staticmethod
+    def export_to_dict(deck_id):
+        """
+        Export a deck to a dictionary suitable for JSON export.
+
+        For students: This method creates a shareable representation of a deck
+        that includes only the content (name, created_at, cards) without internal
+        IDs or study statistics. This allows users to share decks with classmates.
+
+        Args:
+            deck_id (int): ID of the deck to export
+
+        Returns:
+            dict: Export-friendly deck data or None if not found
+            Format: {
+                'name': str,
+                'created_at': str (ISO format),
+                'cards': list of {'question': str, 'answer': str}
+            }
+        """
+        from datetime import datetime
+        from .flashcard import Flashcard
+
+        # Get the deck
+        deck = Deck.get_by_id(deck_id)
+        if not deck:
+            return None
+
+        # Get all flashcards for this deck
+        flashcards = Flashcard.get_by_deck(deck_id)
+
+        # Format cards for export (only question and answer, no IDs or stats)
+        cards = [
+            {'question': card['question'], 'answer': card['answer']}
+            for card in flashcards
+        ]
+
+        # Convert Unix timestamp to ISO format string for portability
+        created_at_iso = datetime.fromtimestamp(deck['created_at']).isoformat()
+
+        return {
+            'name': deck['name'],
+            'created_at': created_at_iso,
+            'cards': cards
+        }

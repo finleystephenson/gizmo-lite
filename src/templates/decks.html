@@ -46,7 +46,7 @@
                         {% endif %}
                     </div>
 
-                    <!-- Action buttons: Study Now and Delete -->
+                    <!-- Action buttons: Study Now, Export, and Delete -->
                     <!-- For students: Flex container keeps buttons aligned side by side -->
                     <div class="flex gap-2">
                         <!-- Study Now button -->
@@ -54,6 +54,13 @@
                         <a href="/study/{{ deck.id }}"
                            class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors font-bold">
                             Study Now
+                        </a>
+
+                        <!-- Export button -->
+                        <!-- For students: This downloads the deck as a JSON file for sharing -->
+                        <a href="/deck/{{ deck.id }}/export"
+                           class="border-2 border-blue-600 text-blue-600 py-2 px-6 rounded-md hover:bg-blue-50 transition-colors font-bold">
+                            Export
                         </a>
 
                         <!-- Delete button with confirmation -->
