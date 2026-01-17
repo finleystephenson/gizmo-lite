@@ -6,7 +6,8 @@
 <!-- Interactive study mode - one flashcard at a time -->
 <!-- For students: This page implements the classic flashcard study flow: -->
 <!-- 1. See question → 2. Think about it → 3. Reveal answer → 4. Grade yourself -->
-<div class="max-w-3xl mx-auto">
+<!-- Responsive: Full width on mobile with proper padding, max-w on desktop -->
+<div class="w-full max-w-3xl mx-auto px-2 sm:px-0">
     <!-- Progress indicator -->
     <!-- For students: Shows which card you're on (e.g., "Card 1 of 10") -->
     <div class="mb-6 text-center">
@@ -22,16 +23,18 @@
     <!-- Flashcard display area -->
     <!-- For students: This card switches between question state and answer state -->
     <!-- JavaScript controls which state is visible -->
-    <div class="bg-white rounded-lg shadow-xl p-8 min-h-64 flex flex-col justify-center">
+    <!-- Responsive: Full width on mobile with less padding, more padding on desktop -->
+    <div class="bg-white rounded-lg shadow-xl p-4 sm:p-8 min-h-64 flex flex-col justify-center w-full">
 
         <!-- Question state (shown by default) -->
         <div id="questionState">
             <!-- Question text (large, centered) -->
-            <div id="questionText" class="text-2xl font-bold text-center mb-8 text-gray-800"></div>
+            <!-- Responsive: Smaller text on mobile (text-xl vs text-2xl) -->
+            <div id="questionText" class="text-xl sm:text-2xl font-bold text-center mb-6 sm:mb-8 text-gray-800"></div>
 
             <!-- Reveal Answer button -->
             <button onclick="revealAnswer()"
-                    class="w-full bg-green-600 text-white py-4 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-lg">
+                    class="w-full bg-green-600 text-white py-3 sm:py-4 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-base sm:text-lg min-h-[44px]">
                 Reveal Answer
             </button>
         </div>
@@ -39,20 +42,23 @@
         <!-- Answer state (hidden by default) -->
         <div id="answerState" class="hidden">
             <!-- Question text (smaller, at top) -->
-            <div id="questionTextSmall" class="text-lg font-semibold mb-4 text-gray-600"></div>
+            <!-- Responsive: Smaller text on mobile -->
+            <div id="questionTextSmall" class="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-gray-600"></div>
 
             <!-- Answer text (large, centered) -->
-            <div id="answerText" class="text-xl text-center mb-8 text-gray-800 border-t-2 border-gray-200 pt-4"></div>
+            <!-- Responsive: Smaller text and margin on mobile -->
+            <div id="answerText" class="text-lg sm:text-xl text-center mb-6 sm:mb-8 text-gray-800 border-t-2 border-gray-200 pt-3 sm:pt-4"></div>
 
             <!-- Grading buttons -->
             <!-- For students: These buttons let you self-assess your performance -->
-            <div class="flex flex-col sm:flex-row gap-4">
+            <!-- Responsive: Already stacks on mobile with flex-col sm:flex-row -->
+            <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <button onclick="gradeCard(true)"
-                        class="flex-1 bg-green-600 text-white py-4 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-lg">
-                    Got it! ✓
+                        class="flex-1 bg-green-600 text-white py-3 sm:py-4 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-base sm:text-lg min-h-[44px]">
+                    Got it!
                 </button>
                 <button onclick="gradeCard(false)"
-                        class="flex-1 bg-yellow-500 text-white py-4 px-6 rounded-md hover:bg-yellow-600 transition-colors font-bold text-lg">
+                        class="flex-1 bg-yellow-500 text-white py-3 sm:py-4 px-6 rounded-md hover:bg-yellow-600 transition-colors font-bold text-base sm:text-lg min-h-[44px]">
                     Needs Practice
                 </button>
             </div>
