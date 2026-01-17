@@ -13,16 +13,20 @@
 <body class="bg-gray-50">
     <!-- Header section with app title and navigation -->
     <!-- For students: This header appears on every page that extends this template -->
-    <header class="bg-blue-600 text-white p-4">
-        <div class="max-w-4xl mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold">AI Flashcard Generator</h1>
+    <!-- Responsive: On mobile, header stacks logo and nav; on desktop, side by side -->
+    <header class="bg-blue-600 text-white py-4 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4">
+            <!-- Logo/title - clickable to go home -->
+            <a href="/" class="hover:text-gray-200 transition-colors">
+                <h1 class="text-xl sm:text-2xl font-bold text-center sm:text-left">AI Flashcard Generator</h1>
+            </a>
             <!-- Navigation links -->
-            <!-- For students: These links are always visible for easy navigation -->
-            <nav class="flex gap-4">
-                <a href="/decks" class="text-white hover:text-gray-200 font-semibold transition-colors">
+            <!-- For students: These links have min-h-[44px] for proper tap targets on mobile -->
+            <nav class="flex gap-4 sm:gap-6">
+                <a href="/decks" class="text-white hover:text-gray-200 font-semibold transition-colors min-h-[44px] flex items-center">
                     My Decks
                 </a>
-                <a href="/stats" class="text-white hover:text-gray-200 font-semibold transition-colors">
+                <a href="/stats" class="text-white hover:text-gray-200 font-semibold transition-colors min-h-[44px] flex items-center">
                     Statistics
                 </a>
             </nav>
@@ -56,7 +60,8 @@
     <!-- Main content area -->
     <!-- For students: The block content below is a Jinja2 placeholder -->
     <!-- Child templates will fill this block with their specific content -->
-    <main class="container mx-auto p-4">
+    <!-- Responsive padding: px-4 on mobile, px-6 on tablet, px-8 on desktop -->
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {% block content %}{% endblock %}
     </main>
 </body>
