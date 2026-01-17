@@ -29,6 +29,30 @@
         </div>
     </header>
 
+    <!-- Flash messages section -->
+    <!-- For students: Flask's flash() function stores messages in the session -->
+    <!-- get_flashed_messages() retrieves them with category (success, error, info) -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="max-w-4xl mx-auto px-4 pt-4">
+                {% for category, message in messages %}
+                    <!-- Color coding based on message category -->
+                    <!-- For students: Different categories get different background colors -->
+                    <div class="{% if category == 'success' %}bg-green-100 text-green-800 border-green-400{% elif category == 'error' %}bg-red-100 text-red-800 border-red-400{% else %}bg-blue-100 text-blue-800 border-blue-400{% endif %} border px-4 py-3 rounded-md mb-2 relative" role="alert">
+                        <span class="block sm:inline">{{ message }}</span>
+                        <!-- Close button -->
+                        <!-- For students: onclick removes the message from the DOM -->
+                        <button type="button"
+                                class="absolute top-0 bottom-0 right-0 px-4 py-3"
+                                onclick="this.parentElement.remove()">
+                            <span class="text-xl">&times;</span>
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
     <!-- Main content area -->
     <!-- For students: The block content below is a Jinja2 placeholder -->
     <!-- Child templates will fill this block with their specific content -->
