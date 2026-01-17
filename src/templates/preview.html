@@ -62,11 +62,11 @@
 </div>
 
 <!-- Modal for editing flashcards -->
-<div id="editModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 p-6">
+<div id="editModal" class="hidden fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full p-4 sm:p-6">
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-bold">Edit Flashcard</h3>
-            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+            <h3 class="text-xl sm:text-2xl font-bold">Edit Flashcard</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 text-2xl min-h-[44px] min-w-[44px] flex items-center justify-center">&times;</button>
         </div>
 
         <form id="editForm" onsubmit="saveCard(event)">
@@ -84,13 +84,13 @@
                           class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
             </div>
 
-            <div class="flex gap-3">
+            <div class="flex flex-col sm:flex-row gap-3">
                 <button type="submit"
-                        class="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-bold">
+                        class="flex-1 bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors font-bold min-h-[44px]">
                     Save Changes
                 </button>
                 <button type="button" onclick="closeModal()"
-                        class="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors font-bold">
+                        class="flex-1 border-2 border-gray-400 text-gray-600 py-2 px-6 rounded-md hover:bg-gray-100 transition-colors font-bold min-h-[44px]">
                     Cancel
                 </button>
             </div>
