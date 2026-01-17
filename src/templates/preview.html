@@ -13,26 +13,28 @@
     <!-- Grid of flashcards -->
     <!-- For students: Each card is numbered and displays question/answer -->
     <!-- The "Edit" button opens a modal, the "x" button deletes the card -->
-    <div id="flashcardsGrid" class="grid gap-4 mb-8">
+    <!-- Responsive: Single column on mobile, 2 columns on desktop (md:grid-cols-2) -->
+    <div id="flashcardsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
         {% for card in flashcards %}
         <div data-card-id="{{ card.id }}" class="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500 relative">
             <div class="flex justify-between items-start">
-                <div class="flex-1">
+                <div class="flex-1 pr-2">
                     <!-- Question (bold) -->
-                    <div class="question-text font-bold text-lg mb-2"><span class="card-number">{{ loop.index }}</span>. {{ card.question }}</div>
+                    <div class="question-text font-bold text-base sm:text-lg mb-2"><span class="card-number">{{ loop.index }}</span>. {{ card.question }}</div>
                     <!-- Answer (gray text) -->
-                    <div class="answer-text text-gray-700">{{ card.answer }}</div>
+                    <div class="answer-text text-gray-700 text-sm sm:text-base">{{ card.answer }}</div>
                 </div>
                 <!-- Action buttons container -->
-                <div class="flex items-center gap-2 ml-4">
+                <!-- For students: min-h/min-w ensure tappable size on mobile (44px minimum) -->
+                <div class="flex items-center gap-1 sm:gap-2 ml-2">
                     <!-- Edit button -->
                     <button onclick="editCard({{ card.id }})"
-                            class="text-blue-600 hover:text-blue-800 font-semibold">
+                            class="text-blue-600 hover:text-blue-800 font-semibold min-h-[44px] min-w-[44px] flex items-center justify-center">
                         Edit
                     </button>
                     <!-- Delete button (red x) -->
                     <button onclick="deleteCard({{ card.id }})"
-                            class="text-red-500 hover:text-red-700 font-bold text-xl leading-none"
+                            class="text-red-500 hover:text-red-700 font-bold text-2xl leading-none min-h-[44px] min-w-[44px] flex items-center justify-center"
                             title="Delete this flashcard">
                         &times;
                     </button>
@@ -44,15 +46,16 @@
 
     <!-- Action buttons at bottom -->
     <!-- For students: These buttons provide clear next steps -->
-    <div class="flex gap-4">
+    <!-- Responsive: Stacks on mobile, side by side on desktop -->
+    <div class="flex flex-col sm:flex-row gap-4">
         <!-- Start Studying button (Phase 4 will implement /study route) -->
         <a href="/study/{{ deck.id }}"
-           class="flex-1 bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-center">
+           class="flex-1 bg-green-600 text-white py-3 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-center min-h-[44px] flex items-center justify-center">
             Start Studying
         </a>
         <!-- Generate More Cards button returns to homepage -->
         <a href="/"
-           class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-md hover:bg-gray-700 transition-colors font-bold text-center">
+           class="flex-1 bg-gray-600 text-white py-3 px-6 rounded-md hover:bg-gray-700 transition-colors font-bold text-center min-h-[44px] flex items-center justify-center">
             Generate More Cards
         </a>
     </div>

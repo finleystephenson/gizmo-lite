@@ -11,9 +11,10 @@
 
     <!-- Import Deck Section -->
     <!-- For students: This form allows users to import decks from JSON files -->
+    <!-- Responsive: Stacks on mobile, inline on desktop -->
     <div class="bg-gray-100 p-4 rounded-lg mb-6">
         <h3 class="font-semibold text-gray-700 mb-3">Import a Deck</h3>
-        <form action="/import" method="POST" enctype="multipart/form-data" class="flex gap-4 items-center">
+        <form action="/import" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row gap-4 sm:items-center">
             <!-- File input for JSON files only -->
             <!-- For students: accept=".json" restricts file picker to JSON files -->
             <input type="file"
@@ -21,7 +22,7 @@
                    accept=".json"
                    class="flex-1 text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
             <button type="submit"
-                    class="bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors font-bold">
+                    class="w-full sm:w-auto bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition-colors font-bold">
                 Import Deck
             </button>
         </form>
@@ -32,14 +33,15 @@
         <!-- For students: Each deck displays as a card with metadata -->
         <div class="grid gap-4">
             {% for deck in decks %}
-            <div class="bg-white p-6 rounded-lg shadow border-l-4 border-blue-500">
-                <div class="flex justify-between items-start">
+            <!-- Responsive: Card layout stacks on mobile, row on desktop -->
+            <div class="bg-white p-4 sm:p-6 rounded-lg shadow border-l-4 border-blue-500">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
                     <div class="flex-1">
                         <!-- Deck name (bold heading) -->
                         <h3 class="font-bold text-xl mb-2">{{ deck.name }}</h3>
 
                         <!-- Card count and created date -->
-                        <div class="text-gray-600 mb-2">
+                        <div class="text-gray-600 mb-2 text-sm sm:text-base">
                             <span class="font-semibold">{{ deck.card_count }}</span> flashcard{% if deck.card_count != 1 %}s{% endif %}
                             <span class="mx-2">•</span>
                             <span>Created {{ deck.created_date }}</span>
@@ -65,28 +67,29 @@
                     </div>
 
                     <!-- Action buttons: Study Now, Export, and Delete -->
-                    <!-- For students: Flex container keeps buttons aligned side by side -->
-                    <div class="flex gap-2">
+                    <!-- For students: Buttons stack on mobile, row on desktop -->
+                    <!-- Responsive: flex-col on mobile for vertical stacking -->
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
                         <!-- Study Now button -->
                         <!-- For students: This links to /study/{deck_id} to start studying -->
                         <a href="/study/{{ deck.id }}"
-                           class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors font-bold">
+                           class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors font-bold text-center min-h-[44px] flex items-center justify-center">
                             Study Now
                         </a>
 
                         <!-- Export button -->
                         <!-- For students: This downloads the deck as a JSON file for sharing -->
                         <a href="/deck/{{ deck.id }}/export"
-                           class="border-2 border-blue-600 text-blue-600 py-2 px-6 rounded-md hover:bg-blue-50 transition-colors font-bold">
+                           class="border-2 border-blue-600 text-blue-600 py-2 px-6 rounded-md hover:bg-blue-50 transition-colors font-bold text-center min-h-[44px] flex items-center justify-center">
                             Export
                         </a>
 
                         <!-- Delete button with confirmation -->
                         <!-- For students: onclick triggers JavaScript confirm() dialog before form submission -->
-                        <form action="/deck/{{ deck.id }}/delete" method="POST" class="inline"
+                        <form action="/deck/{{ deck.id }}/delete" method="POST" class="w-full sm:w-auto"
                               onsubmit="return confirm('Delete \'{{ deck.name }}\' and all its cards? This cannot be undone.');">
                             <button type="submit"
-                                    class="bg-red-600 text-white py-2 px-6 rounded-md hover:bg-red-700 transition-colors font-bold">
+                                    class="w-full bg-red-600 text-white py-2 px-6 rounded-md hover:bg-red-700 transition-colors font-bold min-h-[44px]">
                                 Delete
                             </button>
                         </form>
